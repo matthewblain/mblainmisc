@@ -45,21 +45,25 @@ def TracksFromKml(kmlFile):
     return results
 
 
-def InsertsFromTracks(tableName, tracks):
-    """Return a list of INSERT statements.
+def InsertsFromTracks(tableName, tracks, multiStatement=True):
+    """Return an INSERT statement, or several.
 
   Args:
     tableName: The name of the SQL table to use.
     tracks: List of dicts with name/kml geogfragments.
   """
     results = []
+    results.append('INSERT INTO %s (name, the_geom) VALUES ' % tableName)
     for track in tracks:
-        statement = 'INSERT INTO %s (name, the_geom) VALUES ' % tableName
-        statement += (
+        results.append(
             "('%(name)s', ST_Force2D(ST_GeomFromKML('%(fragment)s')))" % track)
-        results.append(statement)
+        if multiStatement:
+            results.append(
+                'INSERT INTO %s (name, the_geom) VALUES ' % tableName)
+        else:
+            results.append(',')
 
-    return results
+    return '\n'.join(results[:-1])
 
 
 def main(argv):
@@ -67,11 +71,16 @@ def main(argv):
     parser.add_argument("--table",
                         help="name of sql table for INSERT statment",
                         required=True)
+    parser.add_argument(
+        "--multistatement",
+        help="output multi insert statements each with one record",
+        action="store_true",
+        default=False)
     parser.add_argument("filename", help="filename of kml file to read")
     args = parser.parse_args()
     tracks = TracksFromKml(args.filename)
-    statements = InsertsFromTracks(args.table, tracks)
-    print '\n'.join(statements)
+    statement = InsertsFromTracks(args.table, tracks, args.multistatement)
+    print statement
 
 
 if __name__ == '__main__':
