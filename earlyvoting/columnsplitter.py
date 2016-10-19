@@ -33,11 +33,13 @@ def resplitfile(instream, outstream):
      * LOCATION, ADDRESS, the_geom: Location, as before.
      * event_time: Time of open or close.
      * duration: Duration of event, if open, in seconds. (Not sure of or usefulness?)
+     * end_time: Time of close, if event is open time.
      * openclose: 1 for open, -1 for close. This lets us do cumulative sums so that the
        value will bounce between 0 (closed) and 1 (opened) for torque.
     """
     reader = csv.DictReader(instream)
-    fieldnames = ['LOCATION','ADDRESS','the_geom','event_time', 'duration', 'openclose']
+    fieldnames = ['LOCATION','ADDRESS','the_geom','event_time', 'duration',
+                  'end_time', 'openclose']
 
     results = []
 
@@ -61,6 +63,7 @@ def resplitfile(instream, outstream):
             close_row = dict(open_row)
             open_row['event_time'] = open_time.isoformat()
             open_row['duration'] = str((close_time-open_time).total_seconds())
+            open_row['end_time'] = close_time.isoformat()
             open_row['openclose'] = '1'
             close_row['event_time'] = close_time.isoformat()
             close_row['openclose'] = '-1'
