@@ -1,0 +1,83 @@
+Early Voting Map.
+
+Goal: Make a map so voters can find an early voting polling place convenient to
+both their time and location.
+
+
+These are some rough notes I made for myself while making this.
+
+Data source:
+
+Open Excel file from dept of elections 
+ https://www.washoecounty.us/voters/electioninformation/evschedule.php
+Copy paste it to reformat it that the two weeks are on one row
+Move dates down into the day -of-week cells
+Delete first row
+Save as CSV -- data/2016_general_early_voting_schedule.csv
+
+
+First attempt: 
+
+Let's just reformat it so it's basically the same structure (row=polling place; columns=one per day of hours):
+
+sed hackery to make 'open' and 'closing' columns; i was going to do this python but decied this was quicker. it's also not very clever, nor pipelined since it was semi-interactive
+
+
+sed 's/\([0-9]\{1,2\}\) a.m. - \([0-9]\{1,2\}\) p.m./\1,\2/g' < 2016_general_early_voting_schedule.csv > parsed.csv
+
+sed 's/\(1[0-9]\/[0-9]\{1,2\}\/2016\)/\1 open,\1 close/g' < parsed.csv > parsed2.csv
+
+sed 's/CLOSED/&,&/g' < parsed2.csv > parsed3.csv
+
+open spreadsheet, add min/max calculation to each to get an idea of what's going on.
+
+excel's outlier feature would be great here, but i'm using libreoffice.
+
+Result: 
+parsed3.csv aka polling_locations_open_close_columns.csv
+
+upload parsed3 (w/o calculations) to cartodb.
+
+georeference address column
+
+
+Little diversion for future easy of use w/carto:
+ Add some georeferenced data back to the CSV
+ Re-download the CSV from cartodb. Check that the rows match (order wise). Copy and paste the the_geom column back into the CSV.
+
+Make some maps...
+
+Tried a few things, including torque (carto's time lapse magic).
+
+hahah what a mess. trying to figure out torque.
+
+alternatives: https://github.com/skeate/Leaflet.timeline, https://github.com/hallahan/LeafletPlayback . but let's stick w/the hosted sol'n for now.
+
+
+Retry... let's reformat this so Torque can actually use this.
+
+Carto and Torque didn't handle the event-per-column thing very well, though that mechanism
+probably actually works for a multi-layer map OK.
+
+
+Reformat to a series of Events instead...
+
+Created columnsplitter.py. A basic CSV reader/writer which will write a single row
+for every open and every close time in the original sheet which referenced an open set of hours. 
+It uses 1 and -1 for those so that summing them over time tells you if the place is open or closed.
+
+Uploaded to carto; the torque library still didn't quite work right, even with
+experiments around changing the settings:
+
+-torque-time-attribute:"event_time";
+-torque-aggregation-function:"sum(openclose)";
+-torque-resolution:2;
+-torque-data-aggregation:cumulative;
+
+
+Next step: 
+Let's try some local leaflet/cartodb.js stuff.
+Playing with the tutorial at https://carto.com/docs/tutorials/create_map_cartodbjs/
+Created cartodbjs_pages based on that.
+reno_early_voting.html is based on tutorial1_finished.
+
