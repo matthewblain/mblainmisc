@@ -1,0 +1,126 @@
+<html>
+<head>
+  <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/themes/css/cartodb.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+  <script src="http://libs.cartocdn.com/cartodb.js/v3/cartodb.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+  
+  <!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v2/themes/css/cartodb.ie.css" />
+  <![endif]-->
+  <style>
+    html, body {width:100%; height:100%; padding: 0; margin: 0;}
+    #cartodb-map { width: 100%; height:100%; background: black;}
+    
+      #slider {
+        position: absolute;
+        bottom: 40px;
+        right: 80px;
+        left:40px;
+      }
+      
+      #legend {
+        font-family: serif;
+        font-size: 27px;
+        color: white;
+        position: absolute;
+        bottom: 80px;
+        left: 40px;
+      }
+  </style>
+
+  <script>
+    var map;
+    
+    var firstDay = new Date("2016-10-22");
+    var numDays = 14;
+    
+    // There's something horribly wrong with timezones here, this is a quick hack fix.
+    var weekdays = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'];
+
+    
+    function changeLegend(value) {
+        $('#legend').html("Loading...");
+    }
+    
+    function changeQuery(sublayer, value) {
+        var currentDate = new Date(firstDay);
+        currentDate.setDate(currentDate.getDate() + value);
+        nextDate = new Date(currentDate)
+        nextDate.setDate(nextDate.getDate() + 1);
+        start = currentDate.toISOString().split('T')[0];
+        end = nextDate.toISOString().split('T')[0];
+
+        // when user selects the dates, update the layer with the range
+        //var start = new Date(ui.values[0]).toISOString();
+        // build sql
+
+        sql = ("SELECT *, extract(hour from event_time) as open_time, " +
+                        "extract(hour from end_time) as close_time " +
+                        "FROM washoe_early_voting_as_events where openclose = 1" + 
+                        " and event_time >= '" + start + "'" +
+                        " and event_time < '" + end + "'");
+        //window.alert(sql)
+        sublayer.setSQL(sql);
+        weekday = weekdays[currentDate.getDay()]
+        $('#legend').html("Voting Locations on " + weekday + " " + start);
+        
+    }
+    
+    function addTimeSlider(sublayer) {
+         var max = 13;
+         var min = 0;
+         var current = 1;   // Ideally will use today!
+         $("#slider").slider({
+            min: min,
+            max: max,
+            values: [current],
+            slide: function(event, ui) {
+                // give feedback to the user on slide change
+                changeLegend(ui.values[0]);
+            },
+            stop: function( event, ui ) {
+                changeQuery(sublayer, ui.values[0])
+            }
+            });
+        changeQuery(sublayer, current);
+
+      }
+    
+    function init(){
+      // initiate leaflet map
+      map = new L.Map('cartodb-map', { 
+        center: [39.51,-119.8],
+        zoom: 12
+      })
+
+      L.tileLayer('https://dnv9my2eseobd.cloudfront.net/v3/cartodb.map-4xtxp73f/{z}/{x}/{y}.png', {
+        attribution: 'Mapbox <a href="http://mapbox.com/about/maps" target="_blank">Terms &amp; Feedback</a>'
+      }).addTo(map);
+
+      var layerUrl = 'https://matthewblain.carto.com/api/v2/viz/6127db42-963a-11e6-86db-0e3ff518bd15/viz.json';
+
+      // change the query for the first layer
+      var subLayerOptions = {
+        //sql: "SELECT * FROM example_cartodbjs_1 where adm0_a3 = 'USA'",
+        //cartocss: "#example_cartodbjs_1{marker-fill: #109DCD; marker-width: 5; marker-line-color: white; marker-line-width: 0;}"
+      }
+
+      cartodb.createLayer(map, layerUrl)
+        .addTo(map)
+        .on('done', function(layer) {
+          //layer.getSubLayer(0).set(subLayerOptions);
+          addTimeSlider(layer.getSubLayer(0));
+        }).on('error', function() {
+          //log the error
+        });
+    }  
+  </script>
+</head>
+
+<body onload="init()">
+  <div id='cartodb-map'></div>
+  <div id="slider"></div>
+  <div id="legend"></div>
+</body>
+</html>

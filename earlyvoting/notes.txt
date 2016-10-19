@@ -81,3 +81,63 @@ Playing with the tutorial at https://carto.com/docs/tutorials/create_map_cartodb
 Created cartodbjs_pages based on that.
 reno_early_voting.html is based on tutorial1_finished.
 
+
+http://cartodb.github.io/cartodb.js/examples/time_slider.html looks cool.
+
+Lots of examples in https://github.com/CartoDB/cartodb.js/blob/develop/examples/
+
+
+Made reno_early_voting_timeslider with a slider to pick a day.
+
+Updated columnsplitter to emit the end time. Now I can create a map/sql query like this:
+
+SELECT *, extract(hour from event_time) as open_time, extract(hour from end_time) as close_time FROM washoe_early_voting_as_events where openclose = 1
+Or
+SELECT *, extract(hour from event_time) as open_time, extract(hour from end_time) as close_time FROM washoe_early_voting_as_events where openclose = 1 and event_time >= 2016-10-24T00:00:00.000Z and event_time < 2016-10-25T00:00:00.000Z
+
+Open times are 8/9/10/11.
+Close times are 14/16/18/19.
+
+#washoe_early_voting_as_events[open_time=10] {
+   marker-fill: #A6CEE3;
+}
+#washoe_early_voting_as_events[open_time=11] {
+   marker-fill: #1F78B4;
+}
+#washoe_early_voting_as_events[open_time=8] {
+   marker-fill: #B2DF8A;
+}
+#washoe_early_voting_as_events[open_time=9] {
+   marker-fill: #33A02C;
+}
+#washoe_early_voting_as_events[close_time=14] {
+    marker-line-color: #FF00FF;
+}
+#washoe_early_voting_as_events[close_time=16] {
+    marker-line-color: #00FF00;
+}
+#washoe_early_voting_as_events[close_time=18] {
+    marker-line-color: #0000FF;
+}
+#washoe_early_voting_as_events[close_time=19] {
+    marker-line-color: #FF0000;
+}
+
+And some stuff for the legend:
+
+<li>
+    <div class="bullet" style="background: #FF00FF"></div> 2
+</li>
+<li>
+    <div class="bullet" style="background: #00FF00"></div> 4
+</li>
+<li>
+    <div class="bullet" style="background: #0000FF"></div> 6
+</li>
+<li>
+    <div class="bullet" style="background: #FF0000"></div> 7
+</li>
+
+Yay, this all works after a bit of debugging. There are definitely some off by one
+issues relating to the timezones being poorly defined between systems, but it does work.
+
