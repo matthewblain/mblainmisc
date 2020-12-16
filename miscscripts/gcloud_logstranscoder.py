@@ -22,50 +22,52 @@ Usage: logstranscoder input.json output.csv.
 """
 
 
-
 import csv
 import json
 import sys
 
-def json2csv(fjson, fcsv):
-  reader =json.load(fjson)
-  writer = csv.writer(fcsv)
-  # There's probably an apache standard for these headers but whatever.
-  writer.writerow(['ts', 'path', 'responsecode', 'responseSize'])
 
-  for e in reader:
-    write = False
-    path = ''
-    status = ''
-    size = ''
-    ts = e.get('timestamp')
-    if (e.get('protoPayload')  and 
-        e['protoPayload'].get('@type', '') == "type.googleapis.com/google.appengine.logging.v1.RequestLog"):
-      l = e['protoPayload']
-      
-      path = "http?://%s%s" % (l['host'] , l['resource'])
-      status = l['status']
-      size = l['responseSize']
-      write = True
-      
-    elif e.get('httpRequest'):
-      l = e['httpRequest']
-      
-      path = l['requestUrl']
-      status = l['status']
-      size = l['responseSize']
-      write = True
-      
-    if write:
-      writer.writerow([ts, path, status, size])
-    
-      
+def json2csv(fjson, fcsv):
+    reader = json.load(fjson)
+    writer = csv.writer(fcsv)
+    # There's probably an apache standard for these headers but whatever.
+    writer.writerow(["ts", "path", "responsecode", "responseSize"])
+
+    for e in reader:
+        write = False
+        path = ""
+        status = ""
+        size = ""
+        ts = e.get("timestamp")
+        if (
+            e.get("protoPayload")
+            and e["protoPayload"].get("@type", "")
+            == "type.googleapis.com/google.appengine.logging.v1.RequestLog"
+        ):
+            l = e["protoPayload"]
+
+            path = "http?://%s%s" % (l["host"], l["resource"])
+            status = l["status"]
+            size = l["responseSize"]
+            write = True
+
+        elif e.get("httpRequest"):
+            l = e["httpRequest"]
+
+            path = l["requestUrl"]
+            status = l["status"]
+            size = l["responseSize"]
+            write = True
+
+        if write:
+            writer.writerow([ts, path, status, size])
+
+
 def main(argv):
-  with open(argv[1], 'r') as fjson:
-    with open(argv[2], 'w') as fcsv:
-      json2csv(fjson, fcsv)
-  
-if __name__ == '__main__':
-   main(sys.argv)
-   
-        
+    with open(argv[1], "r") as fjson:
+        with open(argv[2], "w") as fcsv:
+            json2csv(fjson, fcsv)
+
+
+if __name__ == "__main__":
+    main(sys.argv)
