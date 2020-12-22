@@ -31,10 +31,11 @@ def json2csv(fjson, fcsv):
     reader = json.load(fjson)
     writer = csv.writer(fcsv)
     # There's probably an apache standard for these headers but whatever.
-    writer.writerow(["ts", "path", "responsecode", "responseSize"])
+    writer.writerow(["ts", "remote_ip", "path", "responsecode", "responseSize"])
 
     for e in reader:
         write = False
+        remote_ip = ""
         path = ""
         status = ""
         size = ""
@@ -49,6 +50,7 @@ def json2csv(fjson, fcsv):
             path = "http?://%s%s" % (l["host"], l["resource"])
             status = l["status"]
             size = l["responseSize"]
+            remote_ip = l["ip"]
             write = True
 
         elif e.get("httpRequest"):
@@ -57,10 +59,11 @@ def json2csv(fjson, fcsv):
             path = l["requestUrl"]
             status = l["status"]
             size = l["responseSize"]
+            ip = l["remoteIp"]
             write = True
 
         if write:
-            writer.writerow([ts, path, status, size])
+            writer.writerow([ts, remote_ip, path, status, size])
 
 
 def main(argv):
