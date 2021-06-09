@@ -7,8 +7,6 @@ CSV file must have headers with columns SignID, TrailName, Arrow
 Arrow must be one of  S,L,R,BL,BR,LR,V.
 
 
-
-Todo: Use CSS or SVG/DOM instead of horrid search/replace templating.
 Todo: Use Inkscape to generate the PDF files.
 
 
@@ -17,40 +15,59 @@ Matthew Blain, 04jun2021
 
 import csv
 import sys
+import xml.etree.ElementTree as ET
 
 
-def generate_files(template_text, csv_data, output_base):
+def generate_files(template_filename, csv_data, output_base):
     seen_ids = set()
     for sign_info in csv_data:
         if sign_info["SignID"] in seen_ids:
             raise Exception("Sign ID seen more than once: " + sign_info["SignID"])
-        result = fill_template(template_text, sign_info)
-        sign_filename = output_base + sign_info['SignID'] + ".svg"
-        with open(sign_filename, "w") as f:
-            f.writelines(result)
+        tree = fill_template(template_filename, sign_info)
+        sign_filename = output_base + sign_info["SignID"] + ".svg"
+        tree.write(sign_filename)
 
 
-def fill_template(template_text, sign_info):
-    # TODO: Use a real template system.
-    result = template_text.replace("TRAILNAMETRAILNAME", sign_info["TrailName"])
-    print(sign_info)
-    a = sign_info["Arrow"]
-    result = result.replace("ARROWUPSTYLE", "" if a == 'S' else "display:none")
-    result = result.replace("ARROWLEFTSTYLE", "" if a == 'L' else "display:none")
-    result = result.replace("ARROWRIGHTSTYLE", "" if a == 'R' else "display:none")
-    result = result.replace("ARROWUPLEFTSTYLE", "" if a == 'BL' else "display:none")
-    result = result.replace("ARROWUPRIGHTSTYLE", "" if a == 'BR' else "display:none")
-    result = result.replace("ARROWLEFTRIGHTSTYLE", "" if a == 'LR' else "display:none")
-    result = result.replace("ARROWVSTYLE", "" if a == 'V' else "display:none")    
-    return result
+def update_text_with_label(root, label, text):
+    # Text is assumed to be a text node. If it's a flowRoot, use Text: Convert to Text in Inkscape.
+    # Also make sure it has a single tspan child.
+    xpath = (
+        ".//{http://www.w3.org/2000/svg}text"
+        "[@{http://www.inkscape.org/namespaces/inkscape}label='%s']" % label
+    )
+    trail_name_nodes = root.findall(xpath)
+    for n in trail_name_nodes:
+        # Assume a single child node, tspan.
+        tspan = n[0]
+        assert tspan.tag == "{http://www.w3.org/2000/svg}tspan"
+        tspan.text = text
+
+
+def fill_template(template_filename, sign_info):
+    tree = ET.parse(template_filename)
+    root = tree.getroot()
+    update_text_with_label(root, "#TrailName", sign_info["TrailName"])
+    update_text_with_label(root, "#SignInfo", sign_info["SignID"])
+
+    # We will assume that every arrow is labeled with an appropriate label then hidden.
+    # You can use object: unhide all to show them!
+    arrowLabel = f'#Arrow{sign_info["Arrow"]}'
+
+    arrow_nodes = root.findall(
+        ".//{http://www.w3.org/2000/svg}g"
+        "[@{http://www.inkscape.org/namespaces/inkscape}label='%s']" % arrowLabel
+    )
+    for n in arrow_nodes:
+        if "style" in n.attrib:
+            del n.attrib["style"]
+
+    return tree
 
 
 def template_to_svg(template_filename, csv_filename, output_path_base):
-    with open(template_filename, "r") as r:
-        template = r.read()  # Hope it's short enough for a single read!
     with open(csv_filename, "r") as r:
         csv_data = csv.DictReader(r)
-        generate_files(template, csv_data, output_path_base)
+        generate_files(template_filename, csv_data, output_path_base)
 
 
 def main(argv):
