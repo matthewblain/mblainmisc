@@ -86,7 +86,7 @@ def main():
     print(race_url)
     candidate_urls = GetCandidateUrls(race_url)
     print("Found %d candidates" % len(candidate_urls))
-    all_info = GetAllCandidateInfo(candidate_urls[:5])
+    all_info = GetAllCandidateInfo(candidate_urls)
     # print(all_info)
     with open(output_filename, "w", encoding="utf-8") as f:
         writer = csv.DictWriter(f, ["position", "name", "party", "ballotpedia", "candidate_website"])
