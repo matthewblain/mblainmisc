@@ -1,0 +1,108 @@
+<!-- wp:paragraph -->
+<p>The California Mountain Biking Coalition 2024 Recreation Voter Guide is a neutral guide: it is a response to a questionnaire posed to all candidates in the 2024 Legislature. E.g. all Assembly Members and half of the Senators (those with odd numbered seats).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Their responses are provided verbatim below. We welcome responses from candidates who have not yet responded.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Want to know what district you live in? Enter your address at <a href="https://findyourrep.legislature.ca.gov/">https://findyourrep.legislature.ca.gov/</a> to find out.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:uagb/table-of-contents {"block_id":"97d8eab9","classMigrate":true,"overallBorderTopWidth":1,"overallBorderLeftWidth":1,"overallBorderRightWidth":1,"overallBorderBottomWidth":1,"overallBorderTopLeftRadius":6,"overallBorderTopRightRadius":6,"overallBorderBottomLeftRadius":6,"overallBorderBottomRightRadius":6,"overallBorderStyle":"solid"} /-->
+
+
+{% for row in csv_data %}
+    {% if loop.previtem is defined and row['Legislative Body'] == loop.previtem['Legislative Body'] %}
+    {% else %}
+    <!-- wp:heading -->
+    <h2 class="wp-block-heading">{{ row['Legislative Body'] }}</h2>
+    <!-- /wp:heading -->
+    {% endif %}
+
+    {% if loop.previtem is not defined or  row['District Number'] != loop.previtem['District Number'] %}
+    <!-- wp:heading {"level":3} -->
+    <h3 class="wp-block-heading">{{ row['Legislative Body'] }} {{ row['District Number'] }}</h3>
+    <!-- /wp:heading -->
+    {% endif %}
+
+
+
+    {% if row['Survey Response timesamp'] %}
+        <!-- wp:heading {"level":4} -->
+        <h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}</h4>
+        <!-- /wp:heading -->
+
+        <!-- wp:paragraph -->
+        <p>Party: {{ row['Party'] }}</p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p>
+        {% if row['Campaign Website'] %}         <strong>Website:  </strong><a href="{{ row['Campaign Website'] }}">{{ row['Campaign Website'] }}</a><br />{% endif %}
+        {% if row['Campaign Facebook Handle'] %} <strong>Facebook: </strong>  {{ row['Campaign Facebook Handle'] }} <br />{% endif %}
+        {% if row['Campaign Instagram Handle'] %}<strong>Instagram:</strong> {{ row['Campaign Instagram Handle'] }}<br />{% endif %}
+        {% if row['Campaign Twitter Handle'] %}  <strong>Twitter/X:</strong>   {{ row['Campaign Twitter Handle'] }}  <br />{% endif %}
+        {% if row['Campaign YouTube Channel'] %} <strong>YouTube:  </strong>  {{ row['Campaign YouTube Channel'] }} <br />{% endif %}
+        </p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p><strong>What are some of your favorite outdoor activities, and what benefit(s) do they provide to you?</strong></p>
+        <!-- /wp:paragraph -->
+
+        {% autoescape false %}
+        <!-- wp:paragraph -->
+        <p>{% if row['Q1'] %}{{ row['Q1'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p><strong>What are the main points you want trail and recreation-minded voters to know about you and your candidacy?</strong></p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p>{% if row['Q2'] %}{{ row['Q2'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p><strong>The Outdoor Industry Association reported that in 2023 outdoor recreation in California represented over $73.8 billion in economic value or 2% of the state’s GDP and 568,000+ jobs. At the same time, park and open space deferred maintenance backlogs in California are also growing - e.g. CA State Parks currently has a $1.2 billion backlog. Do you support expanded funding for multi-use trails and other recreation infrastructure? If so, please explain to voters how you intend to prioritize it if elected.</strong></p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p>{% if row['Q3'] %}{{ row['Q3'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p><strong>CAMTB represents 35 nonprofit volunteer stewardship organizations that build and maintain multi-use trails on public land across the state for the benefit of many Californians. Bureaucratic hurdles and public agency capacity issues, however, hinder their potential and ability to do this important work.<br />How might you support the reduction of bureaucratic and administrative impediments facing public agencies, including the California Dept. of Parks &amp; Recreation, and support our members' crucial on-the-ground stewardship and creation of shared recreational resources?</strong></p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p>{% if row['Q4'] %}{{ row['Q4'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p><strong>Modern sustainable trail design principles recognizes that thoughtful planning and implementation can effectively preserve and protect the natural and cultural resources where we recreate, while also enhancing the user experience itself. Land Managers in California, however, are slow to adopt these new methodologies and subsequently train their staff in these new approaches.<br />If elected, how would you help modernize our public agencies and influence their policy to support responsible recreation?</strong></p>
+        <!-- /wp:paragraph -->
+
+        <!-- wp:paragraph -->
+        <p>{% if row['Q5'] %}{{ row['Q5'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+        
+        {% endautoescape  %}
+    
+  {% else %}
+        <!-- wp:heading {"level":4} -->
+        <h4 class="wp-block-heading">{{ row['Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}</h4>
+        <!-- /wp:heading -->
+
+        <!-- wp:paragraph -->
+        <p><em>No response received</em></p>
+        <!-- /wp:paragraph -->
+  {% endif %}
+ {% endfor %}
+
+<!-- wp:paragraph -->
+<p>Last updated: {{ lastupdated }}</p>
+<!-- /wp:paragraph -->
