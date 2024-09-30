@@ -41,7 +41,11 @@ def main():
 
     with open(csv_filename, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        do_stuff(template_filename, reader)
+        # There simply won't be that many rows in anything
+        # we care to render to a single page. And we might need
+        # to go through it twice... materialize!
+        data = list(reader)
+        do_stuff(template_filename, data)
         
     return 0
 

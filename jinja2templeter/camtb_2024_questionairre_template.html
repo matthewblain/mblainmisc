@@ -10,8 +10,44 @@
 <p>Want to know what district you live in? Enter your address at <a href="https://findyourrep.legislature.ca.gov/">https://findyourrep.legislature.ca.gov/</a> to find out.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:uagb/table-of-contents {"block_id":"97d8eab9","classMigrate":true,"overallBorderTopWidth":1,"overallBorderLeftWidth":1,"overallBorderRightWidth":1,"overallBorderBottomWidth":1,"overallBorderTopLeftRadius":6,"overallBorderTopRightRadius":6,"overallBorderBottomLeftRadius":6,"overallBorderBottomRightRadius":6,"overallBorderStyle":"solid"} /-->
 
+<!-- wp:html -->
+<ul>
+{% for row in csv_data %}
+ {% if loop.previtem is defined and row['Legislative Body'] == loop.previtem['Legislative Body'] %}
+    {% else %}
+    {% if loop.previtem is defined %}
+       </ul>
+    {% endif %}
+    </ul>
+    <li />{{ row['Legislative Body'] }}
+    <ul>
+    {% endif %}
+
+    {% if loop.previtem is not defined  %}
+    <li />{{ row['Legislative Body'] }} {{ row['District Number'] }}
+    <ul>
+    {% elif   row['District Number'] != loop.previtem['District Number']  %}
+    {% if row['Legislative Body'] == loop.previtem['Legislative Body'] %}
+        </ul>
+    {% endif %}
+    <li />{{ row['Legislative Body'] }} {{ row['District Number'] }}
+    <ul>
+    {% endif %}
+    
+    <li />
+    {% if row['Survey Response timesamp'] %}
+        <a href="#{{ row['District Number']}}{{ row['Name'] | replace(" ", "") }}">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}</a>
+    {% else %}
+        <a href="#{{ row['District Number']}}{{ row['Name'] | replace(" ", "") }}">{{ row['Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}</a>
+    {% endif %}
+{% endfor %}
+</ul></ul>
+<!-- /wp:html -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
 
 {% for row in csv_data %}
     {% if loop.previtem is defined and row['Legislative Body'] == loop.previtem['Legislative Body'] %}
@@ -31,7 +67,7 @@
 
     {% if row['Survey Response timesamp'] %}
         <!-- wp:heading {"level":4} -->
-        <h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}</h4>
+        <h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['District Number']}}{{ row['Name'] | replace(" ", "") }}"></a></h4>
         <!-- /wp:heading -->
 
         <!-- wp:paragraph -->
@@ -94,8 +130,12 @@
     
   {% else %}
         <!-- wp:heading {"level":4} -->
-        <h4 class="wp-block-heading">{{ row['Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}</h4>
+        <h4 class="wp-block-heading">{{ row['Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['District Number']}}{{ row['Name'] | replace(" ", "") }}" ></a></h4>
         <!-- /wp:heading -->
+
+        <!-- wp:paragraph -->
+        <p>Party: {{ row['Party'] }}</p>
+        <!-- /wp:paragraph -->
 
         <!-- wp:paragraph -->
         <p><em>No response received</em></p>
