@@ -9,7 +9,7 @@
 import csv
 import re
 import sys
-import time
+import datetime
 import jinja2
 
 
@@ -29,8 +29,8 @@ def do_stuff(template_filename, csv_data):
         return
     
     # {{ row['']  }}
-    
-    print(template.render(csv_data=csv_data, lastupdated="now"))
+    lastupdated = datetime.datetime.now().strftime("%m/%d/%y %H:%M")
+    print(template.render(csv_data=csv_data, lastupdated=lastupdated))
     
 
 # Usage:

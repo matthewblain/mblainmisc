@@ -1,14 +1,27 @@
 <!-- wp:paragraph -->
-<p>The California Mountain Biking Coalition 2024 Recreation Voter Guide is a neutral guide: it is a response to a questionnaire posed to all candidates in the 2024 Legislature. E.g. all Assembly Members and half of the Senators (those with odd numbered seats).</p>
+<p>The California Mountain Biking Coalition 2024 Legislative Recreation Questionnaire is one part of CAMTB's effort to inform voters in the 2024 Generl election.
+This is a neutral guide: it is a response to a questionnaire posed to all candidates in the 2024 Legislature. E.g. all Assembly Members and half of the Senators (those with odd numbered seats).
+</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>Their responses are provided verbatim below. We welcome responses from candidates who have not yet responded.</p>
+<p>
+We are also endorsing select candidates and ballot issues. See our <a href="/category/endorsements/">CAMTB Endorsements Posts</a> to learn more.
+</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>Want to know what district you live in? Enter your address at <a href="https://findyourrep.legislature.ca.gov/">https://findyourrep.legislature.ca.gov/</a> to find out.</p>
+<p>The responses from the Legislative Questionnaire are provided verbatim below. We welcome responses from candidates who have not yet responded.</p>
 <!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Want to know what district you live in? Use this tool: <a href="https://findyourrep.legislature.ca.gov/">Find Your California Representative</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
 
 
 <!-- wp:html -->
@@ -90,7 +103,7 @@
 
         {% autoescape false %}
         <!-- wp:paragraph -->
-        <p>{% if row['Q1'] %}{{ row['Q1'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <p>{% if row['Q1'] %}{{ row['Q1'] | trim | escape | replace("\n", "<br />") }}{% else %}<em>No response received</em>{% endif %}</p>
         <!-- /wp:paragraph -->
 
         <!-- wp:paragraph -->
@@ -98,7 +111,7 @@
         <!-- /wp:paragraph -->
 
         <!-- wp:paragraph -->
-        <p>{% if row['Q2'] %}{{ row['Q2'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <p>{% if row['Q2'] %}{{ row['Q2'] | trim | escape | replace("\n", "<br />") }}{% else %}<em>No response received</em>{% endif %}</p>
         <!-- /wp:paragraph -->
 
         <!-- wp:paragraph -->
@@ -106,7 +119,7 @@
         <!-- /wp:paragraph -->
 
         <!-- wp:paragraph -->
-        <p>{% if row['Q3'] %}{{ row['Q3'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <p>{% if row['Q3'] %}{{ row['Q3'] | trim | escape | replace("\n", "<br />") }}{% else %}<em>No response received</em>{% endif %}</p>
         <!-- /wp:paragraph -->
 
         <!-- wp:paragraph -->
@@ -114,7 +127,7 @@
         <!-- /wp:paragraph -->
 
         <!-- wp:paragraph -->
-        <p>{% if row['Q4'] %}{{ row['Q4'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <p>{% if row['Q4'] %}{{ row['Q4'] | trim | escape | replace("\n", "<br />") }}{% else %}<em>No response received</em>{% endif %}</p>
 
         <!-- /wp:paragraph -->
 
@@ -123,7 +136,7 @@
         <!-- /wp:paragraph -->
 
         <!-- wp:paragraph -->
-        <p>{% if row['Q5'] %}{{ row['Q5'] | trim | escape | replace("\n", "<br>") }}{% else %}<em>No response received</em>{% endif %}</p>
+        <p>{% if row['Q5'] %}{{ row['Q5'] | trim | escape | replace("\n", "<br />") }}{% else %}<em>No response received</em>{% endif %}</p>
         <!-- /wp:paragraph -->
         
         {% endautoescape  %}
@@ -143,6 +156,10 @@
   {% endif %}
  {% endfor %}
 
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
 <!-- wp:paragraph -->
-<p>Last updated: {{ lastupdated }}</p>
+<p><em>Last updated: {{ lastupdated }}</em></p>
 <!-- /wp:paragraph -->
