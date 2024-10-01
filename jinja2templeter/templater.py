@@ -1,8 +1,8 @@
 # Jinja2 CSV template tool.
-# 
+#
 # This is a really simple tool: It loads a jinja2 template
 # and a CSV file and renders the tempalte.
-# 
+#
 # mblain 27sep2024
 
 
@@ -15,23 +15,24 @@ import jinja2
 
 # Run the template...
 
+
 def do_stuff(template_filename, csv_data):
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader("."),
         autoescape=jinja2.select_autoescape(),
-        lstrip_blocks=True
+        lstrip_blocks=True,
     )
     try:
         template = env.get_template(template_filename)
     except jinja2.exceptions.TemplateSyntaxError as e:
-        print ("%s[%d]: %s" % (e.filename, e.lineno, e.message),  file=sys.stderr)
-        #raise e
+        print("%s[%d]: %s" % (e.filename, e.lineno, e.message), file=sys.stderr)
+        # raise e
         return
-    
+
     # {{ row['']  }}
     lastupdated = datetime.datetime.now().strftime("%m/%d/%y %H:%M")
     print(template.render(csv_data=csv_data, lastupdated=lastupdated))
-    
+
 
 # Usage:
 # templater templatefilename csvfilename > outputfilename
@@ -46,7 +47,7 @@ def main():
         # to go through it twice... materialize!
         data = list(reader)
         do_stuff(template_filename, data)
-        
+
     return 0
 
 
