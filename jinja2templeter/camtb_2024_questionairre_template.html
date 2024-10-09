@@ -38,13 +38,13 @@ We are also endorsing select candidates and ballot issues. See our <a href="/cat
     {% endif %}
 
     {% if loop.previtem is not defined  %}
-    <li />{{ row['Legislative Body'] }} {{ row['District Number'] }}
+    <li /><a href="#{{ row['Legislative Body'][9] }}{{ row['District Number'].rjust(3,'0')}}">{{ row['Legislative Body'] }} {{ row['District Number'] }}</a>
     <ul>
     {% elif   row['District Number'] != loop.previtem['District Number']  %}
     {% if row['Legislative Body'] == loop.previtem['Legislative Body'] %}
         </ul>
     {% endif %}
-    <li />{{ row['Legislative Body'] }} {{ row['District Number'] }}
+    <li /><a href="#{{ row['Legislative Body'][9] }}{{ row['District Number'].rjust(3,'0')}}">{{ row['Legislative Body'] }} {{ row['District Number'] }}</a>
     <ul>
     {% endif %}
     
@@ -72,7 +72,7 @@ We are also endorsing select candidates and ballot issues. See our <a href="/cat
 
     {% if loop.previtem is not defined or  row['District Number'] != loop.previtem['District Number'] %}
     <!-- wp:heading {"level":3} -->
-    <h3 class="wp-block-heading">{{ row['Legislative Body'] }} {{ row['District Number'] }}</h3>
+    <h3 class="wp-block-heading">{{ row['Legislative Body'] }} {{ row['District Number'] }}<a name="{{ row['Legislative Body'][9] }}{{ row['District Number'].rjust(3,'0')}}"></a></h3>
     <!-- /wp:heading -->
     {% endif %}
 
