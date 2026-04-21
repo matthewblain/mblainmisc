@@ -25,33 +25,21 @@ import sys
 from datetime import datetime
 
 
-def format_date(date_str):
-    """Converts varying Benevity date formats into a standard M/D/YYYY format.
 
-    Args:
-        date_str (str): The date string to convert. Can be ISO format
-            (2026-02-03T...) or header format (Mon 16 Mar 2026...).
 
-    Returns:
-        str: The formatted date string (e.g., '3/16/2026').
-             Returns original string if parsing fails.
-    """
-    try:
-        if "T" in date_str:
-            dt = datetime.strptime(date_str.split("T")[0], "%Y-%m-%d")
-        else:
-            parts = date_str.split()
-            dt = datetime.strptime(f"{parts[1]} {parts[2]} {parts[3]}", "%d %b %Y")
-        return f"{dt.month}/{dt.day}/{dt.year}"
-    except Exception:
-        return date_str
+def format_period_ending_date(date_str):
+    parts = date_str.split()
+    dt = datetime.strptime(f"{parts[1]} {parts[2]} {parts[3]}", "%d %b %Y")
+    return f"{dt.month}/{dt.day}/{dt.year}"
+
+def format_donation_date(date_str):
+    dt = datetime.fromisoformat(date_str)
+    return f"{dt.month}/{dt.day}/{dt.year}"
+
 
 
 def process_input_rows(reader):
     """Parses raw CSV rows to extract donation and matching gift data.
-
-    Initializes with a standard reader to capture metadata, then switches to
-    DictReader for the main data block to improve readability and maintainability.
     """
     disbursement_id = "UNKNOWN"
     due_date = ""
@@ -65,7 +53,7 @@ def process_input_rows(reader):
         if row[0] == "Disbursement ID":
             disbursement_id = row[1]
         elif row[0] == "Period Ending":
-            due_date = format_date(row[1])
+            due_date = format_period_ending_date(row[1])
         elif row[0] == "Company" and row[1] == "Project":
             # We found the header!
             # row is currently ['Company', 'Project', 'Donation Date', ...]
@@ -80,7 +68,7 @@ def process_input_rows(reader):
             break
 
         company = row["Company"]
-        inv_date = format_date(row["Donation Date"])
+        inv_date = format_donation_date(row["Donation Date"])
         donor = f"{row['Donor First Name']} {row['Donor Last Name']}"
         tx_id = row["Transaction ID"]
         comment = row["Comment"]
@@ -97,7 +85,7 @@ def process_input_rows(reader):
                 "*InvoiceDate": inv_date,
                 "*DueDate": due_date,
                 "Item(Product/Service)": "The CAMTB Impact Fund",
-                "ItemDescription": f"Benevity - {frequency} - {comment}",
+                "ItemDescription": f"Benevity - {tx_id} - {frequency} - {comment}",
                 "*ItemAmount": user_amt,
             }
         )
@@ -112,7 +100,7 @@ def process_input_rows(reader):
                         "*InvoiceDate": inv_date,
                         "*DueDate": due_date,
                         "Item(Product/Service)": "Corporate Matching Gift",
-                        "ItemDescription": f"Benevity - Match - {tx_id}",
+                        "ItemDescription": f"Benevity - {tx_id} - Matching {donor}",
                         "*ItemAmount": match_amt,
                     }
                 )
