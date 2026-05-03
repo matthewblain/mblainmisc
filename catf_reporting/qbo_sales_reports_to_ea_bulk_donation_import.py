@@ -108,7 +108,7 @@ def process_input_rows(sales_reader, customer_reader):
             issues.append(f"No vanid for customer: {row}")
             continue
 
-        note = sale["Description"]
+        note = sale["Description"].strip()
         if "Your donation is fully tax deductible" in note:
             note = ""
 
