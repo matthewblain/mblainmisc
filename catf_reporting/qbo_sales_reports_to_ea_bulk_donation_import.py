@@ -20,7 +20,7 @@ VANID, Person, Date, Amount, Note, Designation, Payment Method, Status,
 -mblain 21apr2026
 
 Usage:
-  script <sales_by_customer.csv> <customer_vanid.csv> <contribution_info.csv>
+  script <sales_by_customer.csv> <customer_vanid.csv> <out_contribution_info.csv>
 """
 
 import csv
@@ -68,15 +68,69 @@ def find_matchee(item_description):
     return m.strip()
 
 
-def process_input_rows(sales_reader, customer_reader):
-    """Parses raw CSV rows and transforms them."""
-    output_rows = []
-    issues = []
+class CustomerInfo:
+    """Info about a 'customer'.
 
-    # Step 1: Map the customer to vanid.
-    # Expected headers: Customer full name,VANID
+    Stored w/ a key of 'customer name', which is always a single level.
+    So the customer_type is used by the 'child' but looked up by 'parent'.
+
+    vanid = vanid of the actial donor
+    attribution_vanid = donor to attribte
+    customer_type = customertype from QBO.
+    attribution_type = EA attribution type.
+    """
+
+    def __init__(
+        self, vanid, attribution_vanid=None, customer_type=None, attribution_type=None
+    ):
+        self.vanid = vanid
+        self.attribution_vanid = attribution_vanid
+        self.customer_type = customer_type
+        self.attribution_type = attribution_type
+
+
+def map_customerid_to_info(customer_reader):
+    """Map the customer to CustomerInfo.
+
+    Expected headers in CSV reader: Customer full name,VANID
+
+    Note: the customer key is configureable in the QBO options.
+    """
     customer_to_vanid = {}
     headers = get_data_header(customer_reader)
+
+    customer_key = None
+    for k in [
+        "Client full name",
+        "Customer full name",
+        "Donor full name",
+        "Guest full name",
+        "Member full name",
+        "Patient full name",
+        "Tenant full name",
+    ]:
+        if k in headers:
+            customer_key = k
+            break
+    if not customer_key:
+        raise Exception("Customer key not found.")
+
+    # The "Customer Type" describes various non-individual
+    # entities. Some valid types for attribution on the EA side:
+    #  Attribution
+    #  Board Member Giving
+    #  Corporate Matching
+    #  Donor Match
+    #  Donor-Advised Fund
+    #  Family / Private Foundation
+    #  Gift Membership
+    #  Peer-to-Peer
+    #  Tribute Gift
+    #  Workplace Giving
+    attribution_types = {
+        "DAF": "Donor-Advised Fund",
+    }
+
     for row in customer_reader:
         if not row:
             # The end of the file has a few blank lines then a footer. Stop.
@@ -84,12 +138,64 @@ def process_input_rows(sales_reader, customer_reader):
         customer = dict(zip(headers, row))
         vanid = customer["VANID"]
         if vanid:
-            customer_to_vanid[customer["Customer full name"]] = vanid
+            name = customer[customer_key]
+            if ":" in name:
+                parent_customer_name, customer_name = name.split(":")
+                # Input rows should be sorted so we see the parent first. E.g.:
+                # Example Foundation,123214
+                # Example Foundation:Big Donor (EF),213432
+                # Parent is donating entity; sub-customer who to attribute.
+                parent_info = customer_to_vanid[parent_customer_name]
+                print("%s %s %s" % (parent_customer_name, customer_name, customer))
+                attribution_type = attribution_types[parent_info.customer_type]
+                customer_to_vanid[customer_name] = CustomerInfo(
+                    parent_info.vanid,
+                    vanid,
+                    customer["Customer type"],
+                    attribution_type,
+                )
+            else:
+                customer_to_vanid[name] = CustomerInfo(
+                    vanid, None, customer["Customer type"]
+                )
+    return customer_to_vanid
 
-    # Step 2: Go through the list of sales.
+
+def process_input_rows(sales_reader, customers_info):
+    """Parses raw CSV rows and transforms them.
+
+    So much bizlogic embedded here....
+
+    """
+    output_rows = []
+    issues = []
+
+    headers = get_data_header(sales_reader)
     # Expected headers:
     # Customer,Transaction date,Product/Service full name,Description,Amount
-    headers = get_data_header(sales_reader)
+    customer_key = None
+    # QBO is configureable to use different Customer labels.
+    for k in [
+        "Client",
+        "Customer",
+        "Donor",
+        "Guest",
+        "Member",
+        "Patient",
+        "Tenant",
+    ]:
+        if k in headers:
+            customer_key = k
+            break
+    if not customer_key:
+        raise Exception("Customer key not found.")
+
+    # Go through the list of sales.
+    # Figure out the amount, the designation, possibly the attribution.
+    # Designation is hard-coded for now.
+    # Attribution has two styles: Newer sub-customer style, and older
+    # description-in-corporate-match style.
+
     for row in sales_reader:
         if not row:
             # Shouln't get here due to TOTAL row, but if so, stop now.
@@ -101,9 +207,18 @@ def process_input_rows(sales_reader, customer_reader):
 
         sale = dict(zip(headers, row))
 
-        customer = sale["Customer"]
-        if customer in customer_to_vanid:
-            vanid = customer_to_vanid[customer]
+        customer = sale[customer_key]
+
+        contact_attribution = ""
+        attribution_type = ""
+        attribution_amount = ""
+
+        if customer in customers_info:
+            customer_info = customers_info[customer]
+            if customer_info.attribution_type:
+                attribution_type = customer_info.attribution_type
+                attribution_amount = sale["Amount"]
+                contact_attribution = customer_info.attribution_vanid
         else:
             issues.append(f"No vanid for customer: {row}")
             continue
@@ -114,9 +229,6 @@ def process_input_rows(sales_reader, customer_reader):
 
         # Handle different designations.
         item = sale["Product/Service full name"]
-        contact_attribution = ""
-        attribution_type = ""
-        attribution_amount = ""
 
         match item:
             case "The CAMTB Impact Fund" | "The CAMTB Impact Fund - no tax receipt":
@@ -146,14 +258,18 @@ def process_input_rows(sales_reader, customer_reader):
                 attribution_type = "Corporate Matching"
                 attribution_amount = sale["Amount"]
 
+                # Prefer old attribution style. Todo: Delete old style?
                 matchee = find_matchee(sale["Description"])
                 if not matchee:
+                    if contact_attribution:
+                        # We are using new-style sub-customer attribution.
+                        continue
                     issues.append(f"No matchee found: {row}")
                     continue
                 if matchee not in customer_to_vanid:
                     issues.append(f"No vanid for matchee: {row}")
                     continue
-                contact_attribution = customer_to_vanid[matchee]
+                contact_attribution = customer_to_vanid[matchee].vanid
 
             case _:
                 raise Exception(f"Unknown Product/Service: {item} for {row}")
@@ -161,7 +277,7 @@ def process_input_rows(sales_reader, customer_reader):
         # Row 1: Individual Donation
         output_rows.append(
             {
-                "VANID": vanid,
+                "VANID": customer_info.vanid,
                 "Person": customer,
                 "Date": sale["Transaction date"],
                 "Amount": sale["Amount"],
@@ -196,7 +312,8 @@ def process_reports(
         ) as customer_vanid_file:
             sales_reader = csv.reader(sales_by_customer_file)
             customer_reader = csv.reader(customer_vanid_file)
-            output_rows, issues = process_input_rows(sales_reader, customer_reader)
+            customer_to_info = map_customerid_to_info(customer_reader)
+            output_rows, issues = process_input_rows(sales_reader, customer_to_info)
 
     # Write Output
     headers = [
@@ -225,7 +342,7 @@ def main():
     # Check if input and output filenames were provided
     if len(sys.argv) != 4:
         print(
-            "Usage: script <sales_by_customer.csv> <customer_vanid.csv> <contribution_info.csv>",
+            "Usage: script <sales_by_customer.csv> <customer_vanid.csv> <out_contribution_info.csv>",
             file=sys.stderr,
         )
         sys.exit(1)
