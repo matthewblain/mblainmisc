@@ -7,6 +7,7 @@
 
 
 import csv
+import os
 import re
 import sys
 import datetime
@@ -16,14 +17,18 @@ import jinja2
 # Run the template...
 
 
-def do_stuff(template_filename, csv_data):
+def render_template(template_filename, csv_data):
+    
+    template_dir = os.path.dirname(template_filename) or "."
+    template_basename = os.path.basename(template_filename)
+    
     env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader("."),
+        loader=jinja2.FileSystemLoader(template_dir),
         autoescape=jinja2.select_autoescape(),
         lstrip_blocks=True,
     )
     try:
-        template = env.get_template(template_filename)
+        template = env.get_template(template_basename)
     except jinja2.exceptions.TemplateSyntaxError as e:
         print("%s[%d]: %s" % (e.filename, e.lineno, e.message), file=sys.stderr)
         # raise e
@@ -31,7 +36,7 @@ def do_stuff(template_filename, csv_data):
 
     # {{ row['']  }}
     lastupdated = datetime.datetime.now().strftime("%m/%d/%y %H:%M")
-    print(template.render(csv_data=csv_data, lastupdated=lastupdated))
+    return template.render(csv_data=csv_data, lastupdated=lastupdated)
 
 
 # Usage:
@@ -39,6 +44,7 @@ def do_stuff(template_filename, csv_data):
 def main():
     template_filename = sys.argv[1]
     csv_filename = sys.argv[2]
+    output_filename = sys.argv[3]
 
     with open(csv_filename, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -46,8 +52,11 @@ def main():
         # we care to render to a single page. And we might need
         # to go through it twice... materialize!
         data = list(reader)
-        do_stuff(template_filename, data)
-
+        result = render_template(template_filename, data)
+    
+    with open(output_filename, "w", encoding="utf-8") as f:
+        f.write(result)
+    
     return 0
 
 
