@@ -1,171 +1,172 @@
 <!-- wp:paragraph -->
-<p>The California Mountain Biking Coalition 2026 Legislative Recreation Questionnaire is one part of CAMTB's effort to inform voters in the 2026 General Election.
-This is a neutral guide: it is a response to a questionnaire posed to all candidates in the 2026 Legislature. E.g. all Assembly Members and half of the Senators (those with odd numbered seats).
+<p>
+    The California Mountain Biking Coalition 2026 Legislative Recreation Questionnaire is one part of CAMTB's effort to inform voters in the 2026 General Election.
+    This is a neutral guide: it is a response to a questionnaire posed to all candidates in the 2026 Legislature. E.g. all Assembly Members and half of the Senators (those with odd numbered seats).
 </p>
 <!-- /wp:paragraph -->
 <!-- wp:paragraph -->
 <p>
-We are also endorsing select candidates and ballot issues. See our <a href="/category/endorsements/">CAMTB Endorsements Posts</a> to learn more.
+    We are also endorsing select candidates and ballot issues. See our <a href="/category/endorsements/">CAMTB Endorsements Posts</a> to learn more.
 </p>
 <!-- /wp:paragraph -->
 <!-- wp:paragraph -->
 <p>The responses from the Legislative Questionnaire are provided verbatim below. We welcome responses from candidates who have not yet responded.</p>
 <!-- /wp:paragraph -->
 <!-- wp:paragraph -->
-<p>Want to know what district you live in? Use these tools:
- <a href="https://findyourrep.legislature.ca.gov/" target="_blank" rel="noreferrer noopener">Find Your California Representative</a> 
- and
- <a href="https://calmatters.org/politics/2022/01/california-election-new-districts-lookup/" target="_blank" rel="noreferrer noopener">Find Your New Congressional District</a>. 
- </p>
+<p>
+    Want to know what district you live in? Use these tools:
+    <a href="https://findyourrep.legislature.ca.gov/"
+       target="_blank"
+       rel="noreferrer noopener">Find Your California Representative</a>
+    and
+    <a href="https://calmatters.org/politics/2022/01/california-election-new-districts-lookup/"
+       target="_blank"
+       rel="noreferrer noopener">Find Your New Congressional District</a>.
+</p>
 <!-- /wp:paragraph -->
 <!-- wp:separator -->
-<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
 <!-- wp:html -->
 <ul>
-{% for row in csv_data %}
- {% if loop.previtem is defined and row['Legislative Body'] == loop.previtem['Legislative Body'] %}
-    {% else %}
-    {% if loop.previtem is defined %}
-       </ul>
-    {% endif %}
-    </ul>
-	<li/>{{ row['Legislative Body'] }}
-    <ul>
-    {% endif %}
-
-    {% if loop.previtem is not defined  %}
-    <li/>
-	<a href="#{{ row['Legislative Body'] }}{{ row['District'].rjust(3,'0')}}">{{ row['Legislative Body'] }} {{ row['District'] }}</a>
-	<ul>
-    {% elif   row['District'] != loop.previtem['District']  %}
-    {% if row['Legislative Body'] == loop.previtem['Legislative Body'] %}
-        </ul>
-    {% endif %}
-    <li/>
-	<a href="#{{ row['Legislative Body'] }}{{ row['District'].rjust(3,'0')}}">{{ row['Legislative Body'] }} {{ row['District'] }}</a>
-	<ul>
-    {% endif %}
-    
-    <li/>
-		<a href="#{{ row['Legislative Body'] }}{{ row['District']}}{{ row['Last Name'] | replace(" ","" ) }}"
-		{% if row['Response Timestamp'] %}style="font-weight:bold;"{% endif %}>{{ row['First Name'] }} {{ row['Last Name'] }} {% if row['Incumbent?']=='TRUE' %}<i>(Incumbent)</i>{% endif %}</a>
+    {% for row in csv_data %}
+        {% if loop.previtem is defined and row["Legislative Body"] == loop.previtem["Legislative Body"] %}
+        {% else %}
+            {% if loop.previtem is defined %}
+                </ul>
+            {% endif %}
+            </ul>
+            <li />
+            {{ row['Legislative Body'] }}
+            <ul>
+        {% endif %}
+        {% if loop.previtem is not defined %}
+            <li />
+            <a href="#{{ row['Legislative Body'] }}{{ row['District'].rjust(3, '0') }}">{{ row['Legislative Body'] }} {{ row['District'] }}</a>
+            <ul>
+        {% elif row["District"] != loop.previtem["District"] %}
+            {% if row["Legislative Body"] == loop.previtem["Legislative Body"] %}
+                </ul>
+            {% endif %}
+            <li />
+            <a href="#{{ row['Legislative Body'] }}{{ row['District'].rjust(3, '0') }}">{{ row['Legislative Body'] }} {{ row['District'] }}</a>
+            <ul>
+        {% endif %}
+            <li />
+            <a href="#{{ row['Legislative Body'] }}{{ row['District'] }}{{ row['Last Name'] | replace(' ', '') }}"
+               {% if row['Response Timestamp'] %}style="font-weight:bold;"{% endif %}>{{ row['First Name'] }} {{ row['Last Name'] }} {% if row["Incumbent?"]=="TRUE" %}<i>(Incumbent)</i>{% endif %}</a>
     {% endfor %}
-	</ul>
+</ul>
 </ul>
 <!-- /wp:html -->
 <!-- wp:separator -->
-<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
-
 {% for row in csv_data %}
-    {% if loop.previtem is defined and row['Legislative Body'] == loop.previtem['Legislative Body'] %}
+    {% if loop.previtem is defined and row["Legislative Body"] == loop.previtem["Legislative Body"] %}
     {% else %}
-    <!-- wp:heading -->
-	<h2 class="wp-block-heading">{{ row['Legislative Body'] }}</h2>
-	<!-- /wp:heading -->
+        <!-- wp:heading -->
+        <h2 class="wp-block-heading">{{ row['Legislative Body'] }}</h2>
+        <!-- /wp:heading -->
     {% endif %}
-
-    {% if loop.previtem is not defined or  row['District'] != loop.previtem['District'] %}
-    <!-- wp:heading {"level":3} -->
-	<h3 class="wp-block-heading">{{ row['Legislative Body'] }} {{ row['District'] }}<a name="{{ row['Legislative Body'] }}{{ row['District'].rjust(3,'0')}}"/>
-	</h3>
-	<!-- /wp:heading -->
+    {% if loop.previtem is not defined or row["District"] != loop.previtem["District"] %}
+        <!-- wp:heading {"level":3} -->
+        <h3 class="wp-block-heading">
+            {{ row['Legislative Body'] }} {{ row['District'] }}<a name="{{ row['Legislative Body'] }}{{ row['District'].rjust(3, '0') }}" />
+        </h3>
+        <!-- /wp:heading -->
     {% endif %}
-
-
-
-    {% if row['Response Timestamp'] %}
+    {% if row["Response Timestamp"] %}
         <!-- wp:heading {"level":4} -->
-		<h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['Legislative Body'] }}{{ row['District']}}{{ row['Last Name'] | replace(" ","" ) }}"></a></h4>
-			<!-- /wp:heading -->
-			<!-- wp:paragraph -->
-			<p>Party: {{ row['Party'] }}</p>
-			<!-- /wp:paragraph -->
-			<!-- wp:paragraph -->
-			<p>
-				{% if row['Campaign Website'] %}         <strong>Website:  </strong>
-				<a href="https://{{ row['Campaign Website'] }}" target="_blank" rel="noreferrer noopener">{{ row['Campaign Website'] }}</a>
-				<br/>{% endif %}
-				{% if row['Campaign Facebook Handle'] %} <strong>Facebook: </strong>  {{ row['Campaign Facebook Handle'] }} <br/>{% endif %}
-				{% if row['Campaign Instagram Handle'] %}<strong>Instagram:</strong> {{ row['Campaign Instagram Handle'] }}<br/>{% endif %}
-				{% if row['Campaign X Handle'] %}  <strong>Twitter/X:</strong>   {{ row['Campaign X Handle'] }}  <br/>{% endif %}
-				{% if row['Campaign YouTube Channel'] %} <strong>YouTube:  </strong>  {{ row['Campaign YouTube Channel'] }} <br/>{% endif %}
-				</p>
-			<!-- /wp:paragraph -->
-			<!-- wp:paragraph -->
-			<p>
-				<strong>What are some of your favorite outdoor activities, and what benefit(s) do they provide to you?</strong>
-			</p>
-			<!-- /wp:paragraph -->
-
-        {% autoescape false %}
+        <h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row["Incumbent?"] == "TRUE" %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['Legislative Body'] }}{{ row['District'] }}{{ row['Last Name'] | replace(' ', '') }}"></a></h4>
+        <!-- /wp:heading -->
         <!-- wp:paragraph -->
-		<p>{% if row['Q1'] %}{{ row['Q1'] | trim | escape | replace("\n", "<br/>") }}{% else %}<em>No response received</em>{% endif %}</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>
-			<strong>What are the main points you want trail and recreation-minded voters to know about you and your candidacy?</strong>
-		</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>{% if row['Q2'] %}{{ row['Q2'] | trim | escape | replace("\n", "<br/>") }}{% else %}<em>No response received</em>{% endif %}</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>
-			<strong>According to the U.S. Bureau of Economic Analysis, California's outdoor recreation economy generates $87.9 billion and supports over half a million jobs. At the same time, deferred maintenance remains a persistent challenge, exemplified by the $1.2 billion backlog at California State Parks.<br/> 
-			Do you support expanding funding for parks, trails and other recreational infrastructure? If so, please detail how you intend to prioritize this issue within the state budget.
-			</strong>
-		</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>{% if row['Q3'] %}{{ row['Q3'] | trim | escape | replace("\n", "<br/>") }}{% else %}<em>No response received</em>{% endif %}</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>
-		<strong>CAMTB represents 45 nonprofit volunteer stewardship organizations that build and maintain 5,0000 miles of multi-use trails on public lands across California. Unfortunately, bureaucratic red/green tape and agency capacity limits frequently stall this vital work. 
-		<br/>
-		If elected, what specific steps will you take to reduce administrative barriers at agencies like California State Parks, so we can fully leverage volunteer stewardship to improve our state's recreational resources?</strong>
-		</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>{% if row['Q4'] %}{{ row['Q4'] | trim | escape | replace("\n", "<br/>") }}{% else %}<em>No response received</em>{% endif %}</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>
-			<strong>Modern sustainable trail design principles recognize that thoughtful planning can protect natural and cultural resources while simultaneously enhancing the user experience. Yet, some land management agencies have been slow to adopt these best practices and train their staff accordingly. 
-	<br/>
-	If elected, how do you intend to modernize agency policies and prioritize workforce training to ensure California leads in sustainable trail design and responsible recreation?
-	</strong>
-		</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>{% if row['Q5'] %}{{ row['Q5'] | trim | escape | replace("\n", "<br/>") }}{% else %}<em>No response received</em>{% endif %}</p>
-		<!-- /wp:paragraph -->
-			
-        {% endautoescape  %}
-    
-  {% else %}
-        <!-- wp:heading {"level":4} -->
-		<h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row['Incumbent?'] == 'TRUE' %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['Legislative Body'] }}{{ row['District']}}{{ row['Last Name'] | replace(" ","" ) }}"/>
-		</h4>
-		<!-- /wp:heading -->
-		<!-- wp:paragraph -->
-		<p>Party: {{ row['Party'] }}</p>
-		<!-- /wp:paragraph -->
-		<!-- wp:paragraph -->
-		<p>
-		<em>No response received</em>
-		</p>
-		<!-- /wp:paragraph -->
-  {% endif %}
- {% endfor %}
-
+        <p>Party: {{ row['Party'] }}</p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>
+            {% if row["Campaign Website"] %}         <strong>Website:</strong>
+            <a href="https://{{ row['Campaign Website'] }}"
+               target="_blank"
+               rel="noreferrer noopener">{{ row['Campaign Website'] }}</a>
+            <br />
+    {% endif %}
+    {% if row["Campaign Facebook Handle"] %} <strong>Facebook:</strong>  {{ row['Campaign Facebook Handle'] }} <br />{% endif %}
+    {% if row["Campaign Instagram Handle"] %}<strong>Instagram:</strong> {{ row['Campaign Instagram Handle'] }}<br />{% endif %}
+    {% if row["Campaign X Handle"] %}<strong>Twitter/X:</strong>   {{ row['Campaign X Handle'] }}  <br />{% endif %}
+    {% if row["Campaign YouTube Channel"] %} <strong>YouTube:</strong>  {{ row['Campaign YouTube Channel'] }} <br />{% endif %}
+    </p>
+    <!-- /wp:paragraph -->
+    <!-- wp:paragraph -->
+    <p>
+        <strong>What are some of your favorite outdoor activities, and what benefit(s) do they provide to you?</strong>
+    </p>
+    <!-- /wp:paragraph -->
+    {% autoescape false %}
+        <!-- wp:paragraph -->
+        <p>{% if row["Q1"] %}{{ row['Q1'] | trim | escape | replace('\n', '<br/>') }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>
+            <strong>What are the main points you want trail and recreation-minded voters to know about you and your candidacy?</strong>
+        </p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>{% if row["Q2"] %}{{ row['Q2'] | trim | escape | replace('\n', '<br/>') }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>
+            <strong>According to the U.S. Bureau of Economic Analysis, California's outdoor recreation economy generates $87.9 billion and supports over half a million jobs. At the same time, deferred maintenance remains a persistent challenge, exemplified by the $1.2 billion backlog at California State Parks.
+                <br />
+                Do you support expanding funding for parks, trails and other recreational infrastructure? If so, please detail how you intend to prioritize this issue within the state budget.
+            </strong>
+        </p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>{% if row["Q3"] %}{{ row['Q3'] | trim | escape | replace('\n', '<br/>') }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>
+            <strong>CAMTB represents 45 nonprofit volunteer stewardship organizations that build and maintain 5,0000 miles of multi-use trails on public lands across California. Unfortunately, bureaucratic red/green tape and agency capacity limits frequently stall this vital work.
+                <br />
+            If elected, what specific steps will you take to reduce administrative barriers at agencies like California State Parks, so we can fully leverage volunteer stewardship to improve our state's recreational resources?</strong>
+        </p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>{% if row["Q4"] %}{{ row['Q4'] | trim | escape | replace('\n', '<br/>') }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>
+            <strong>Modern sustainable trail design principles recognize that thoughtful planning can protect natural and cultural resources while simultaneously enhancing the user experience. Yet, some land management agencies have been slow to adopt these best practices and train their staff accordingly.
+                <br />
+                If elected, how do you intend to modernize agency policies and prioritize workforce training to ensure California leads in sustainable trail design and responsible recreation?
+            </strong>
+        </p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>{% if row["Q5"] %}{{ row['Q5'] | trim | escape | replace('\n', '<br/>') }}{% else %}<em>No response received</em>{% endif %}</p>
+        <!-- /wp:paragraph -->
+    {% endautoescape %}
+{% else %}
+    <!-- wp:heading {"level":4} -->
+    <h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row["Incumbent?"] == "TRUE" %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['Legislative Body'] }}{{ row['District'] }}{{ row['Last Name'] | replace(' ', '') }}" />
+    </h4>
+    <!-- /wp:heading -->
+    <!-- wp:paragraph -->
+    <p>Party: {{ row['Party'] }}</p>
+    <!-- /wp:paragraph -->
+    <!-- wp:paragraph -->
+    <p>
+        <em>No response received</em>
+    </p>
+    <!-- /wp:paragraph -->
+{% endif %}
+{% endfor %}
 <!-- wp:separator -->
-<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
 <!-- wp:paragraph -->
-	<p>
-		<em>Last updated: {{ lastupdated }}</em>
-	</p>
+<p>
+    <em>Last updated: {{ lastupdated }}</em>
+</p>
 <!-- /wp:paragraph -->
