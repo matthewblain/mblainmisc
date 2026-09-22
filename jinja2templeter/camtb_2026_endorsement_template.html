@@ -1,0 +1,76 @@
+<!-- wp:media-text {"mediaPosition":"right","mediaId":3546,"mediaLink":"https://camtb.org/camtb-logo-capitol-color/","mediaType":"image","mediaWidth":33} -->
+<div class="wp-block-media-text has-media-on-the-right is-stacked-on-mobile"
+     style="grid-template-columns:auto 33%">
+    <div class="wp-block-media-text__content">
+        <!-- wp:paragraph {"placeholder":"Content…"} -->
+        <p> The California Mountain Biking Coalition is keen to share our 2026 California November General Election voter guide and election endorsements. We support these candidates for their stance on and commitment to outdoor recreation and environmental stewardship in California. We are also endorsing regional measures and statewide propositions that align with our advocacy pillars.</p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>To learn more about our criteria for endorsement, read our <a href="https://camtb.org/camtb-advocacy-pillars/">Advocacy Pillars</a>.</p>
+        <!-- /wp:paragraph -->
+    </div>
+    <figure class="wp-block-media-text__media">
+        <img src="https://camtb.org/wp-content/uploads/2022/08/CAMTB-Logo-Capitol-Color-1024x1001.png"
+             alt="CAMTB Logo"
+             class="wp-image-3546 size-full" />
+    </figure>
+</div>
+<!-- /wp:media-text -->
+<!-- wp:paragraph {"style":{"typography":{"textAlign":"right"}}} -->
+<p class="has-text-align-right">
+    <em>Updated {{ lastupdated }}</em>
+</p>
+<!-- /wp:paragraph -->
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity" />
+<!-- /wp:separator -->
+{% for row in csv_data %}
+    {% if loop.previtem is defined and row["Region of CA"] == loop.previtem["Region of CA"] %}
+    {% else %}
+        <!-- wp:heading -->
+        <h2 class="wp-block-heading">{{ row['Region of CA'] }}</h2>
+        <!-- /wp:heading -->
+    {% endif %}
+    {% if loop.previtem is not defined or row["Subregion"] != loop.previtem["Subregion"] %}
+        <!-- wp:heading {"level":3} -->
+        <h3 class="wp-block-heading">
+            <a name="{{ row['Region of CA'] }}{{ row['Subregion'] }}">{{ row['Subregion'] }}</a>
+        </h3>
+        <!-- /wp:heading -->
+    {% endif %}
+    <!-- wp:paragraph -->
+    {{ row[''] }}
+    <p>
+        <strong>{{ row['Position Readable Name'] }}</strong>: <a href="{{ row['Campaign Website'] }}"
+    target="_blank"
+    rel="noreferrer noopener">{{ row['Candidate'] }}</a>
+        {% if row["Questionnarre Row"] != "" %}
+            (<a href="https://camtb.org/TODO-QUESTIONNAIRRE/#{{ row['Position Code'] }}">CAMTB Questionnaire</a>)
+        {% endif %}
+        : {{ row['Short message'] }}
+    </p>
+    <!-- /wp:paragraph -->
+{% endfor %}
+<!-- wp:spacer {"height":"75px"} -->
+<div style="height:75px" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+<!-- wp:heading {"level":1} -->
+<h1 class="wp-block-heading">Vote by November 6th!</h1>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>Election Day is Tuesday, November 6th. Every Californian registered to vote has received a ballot in the mail. You can mail it or drop it off on or before election day or vote in person at a polling place or election center. You can register to vote in person on Election Day. For more information on registering to vote and polling locations, see the <a href="https://www.sos.ca.gov/elections/polling-place"
+    target="_blank"
+    rel="noreferrer noopener">California state elections site</a>.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>
+    Want to know what district you live in? Use these tools:
+    <a href="https://findyourrep.legislature.ca.gov/"
+       target="_blank"
+       rel="noreferrer noopener">Find Your California Representative</a>
+    and
+    <a href="https://calmatters.org/politics/2022/01/california-election-new-districts-lookup/"
+       target="_blank"
+       rel="noreferrer noopener">Find Your New Congressional District</a>.
+</p>
+<!-- /wp:paragraph -->
