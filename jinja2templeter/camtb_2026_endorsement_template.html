@@ -46,9 +46,9 @@
         {% if row["Questionnarre Row"] != "" %}
             (<a href="https://camtb.org/TODO-QUESTIONNAIRRE/#{{ row['Position Code'] }}">CAMTB Questionnaire</a>)
         {% endif %}
-		{% autoescape false %}
-        : {{ ( row['Short message'] | trim | escape | replace('\n', '<br />') ) | safe }}
-		{% endautoescape %}
+        {% autoescape false %}
+            : {{ ( row['Short message'] | trim | escape | replace('\n', '<br />') ) | safe }}
+        {% endautoescape %}
     </p>
     <!-- /wp:paragraph -->
 {% endfor %}
@@ -58,41 +58,40 @@
 <!-- wp:heading {"level":1} -->
 <h1 class="wp-block-heading">Vote by November 6th!</h1>
 <!-- /wp:heading -->
-
 <!-- wp:paragraph -->
-<p>Election Day is Tuesday, November 6th. Every Californian registered to vote has received a ballot in the mail. You can mail it or drop it off on or before election day or vote in person at a polling place or election center. You can register to vote in person on Election Day. For more information on registering to vote and polling locations, see the <a href="https://www.sos.ca.gov/elections/polling-place" target="_blank" rel="noreferrer noopener">California state elections site</a>.</p>
+<p>Election Day is Tuesday, November 6th. Every Californian registered to vote has received a ballot in the mail. You can mail it or drop it off on or before election day or vote in person at a polling place or election center. You can register to vote in person on Election Day. For more information on registering to vote and polling locations, see the <a href="https://www.sos.ca.gov/elections/polling-place"
+    target="_blank"
+    rel="noreferrer noopener">California state elections site</a>.</p>
 <!-- /wp:paragraph -->
-
 <!-- wp:paragraph -->
 <p>Want to know what district you (or someone you know) lives in? Use these tools:</p>
 <!-- /wp:paragraph -->
-
 <!-- wp:list -->
-<ul class="wp-block-list"><!-- wp:list-item -->
-<li><a href="https://findyourrep.legislature.ca.gov/" target="_blank" rel="noreferrer noopener">Find Your California Representative</a>  (State Assembly and Senate)</li>
-<!-- /wp:list-item -->
-
-<!-- wp:list-item -->
-<li><a href="https://calmatters.org/politics/2022/01/california-election-new-districts-lookup/" target="_blank" rel="noreferrer noopener">Find Your New Congressional District</a></li>
-<!-- /wp:list-item -->
-
-<!-- wp:list-item -->
-<li><a href="https://www.arcgis.com/apps/instant/lookup/index.html?appid=e14b1451ca0b412cb8c9a1d04afb9ce5">East Bay Regional Park (EBRPD) District Ward Lookup</a></li>
-<!-- /wp:list-item -->
-
-<!-- wp:list-item -->
-<li><a href="https://ebmudisd.maps.arcgis.com/apps/instant/lookup/index.html?appid=89208d9ef56646edbc1762a9d5da4e15">East Bay Municipal Utility District (EBMUD) Ward Lookup</a></li>
-<!-- /wp:list-item -->
-
-<!-- wp:list-item -->
-<li><a href="https://mrosd.maps.arcgis.com/apps/instant/media/index.html?appid=cfd0cd00f15f4b47a16acd44d342c7ec">Midpeninsula Regional Open Space District (Midpen) Ward Lookup</a></li>
-<!-- /wp:list-item -->
-
-<!-- wp:list-item -->
-<li><a href="https://eid.maps.arcgis.com/apps/instant/lookup/index.html?appid=e34ddc303aae45439e336224680d99e3">El Dorado Irrigation District Ward Lookup</a></li>
-<!-- /wp:list-item --></ul>
+<ul class="wp-block-list">
+    <!-- wp:list-item -->
+    <li><a href="https://findyourrep.legislature.ca.gov/"
+   target="_blank"
+   rel="noreferrer noopener">Find Your California Representative</a>  (State Assembly and Senate)</li>
+    <!-- /wp:list-item -->
+    <!-- wp:list-item -->
+    <li><a href="https://calmatters.org/politics/2022/01/california-election-new-districts-lookup/"
+   target="_blank"
+   rel="noreferrer noopener">Find Your New Congressional District</a></li>
+    <!-- /wp:list-item -->
+    <!-- wp:list-item -->
+    <li><a href="https://www.arcgis.com/apps/instant/lookup/index.html?appid=e14b1451ca0b412cb8c9a1d04afb9ce5">East Bay Regional Park (EBRPD) District Ward Lookup</a></li>
+    <!-- /wp:list-item -->
+    <!-- wp:list-item -->
+    <li><a href="https://ebmudisd.maps.arcgis.com/apps/instant/lookup/index.html?appid=89208d9ef56646edbc1762a9d5da4e15">East Bay Municipal Utility District (EBMUD) Ward Lookup</a></li>
+    <!-- /wp:list-item -->
+    <!-- wp:list-item -->
+    <li><a href="https://mrosd.maps.arcgis.com/apps/instant/media/index.html?appid=cfd0cd00f15f4b47a16acd44d342c7ec">Midpeninsula Regional Open Space District (Midpen) Ward Lookup</a></li>
+    <!-- /wp:list-item -->
+    <!-- wp:list-item -->
+    <li><a href="https://eid.maps.arcgis.com/apps/instant/lookup/index.html?appid=e34ddc303aae45439e336224680d99e3">El Dorado Irrigation District Ward Lookup</a></li>
+    <!-- /wp:list-item -->
+</ul>
 <!-- /wp:list -->
-
 <!-- wp:paragraph -->
 <p>Please share with your friends.</p>
 <!-- /wp:paragraph -->
