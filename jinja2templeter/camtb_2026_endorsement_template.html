@@ -39,7 +39,6 @@
         <!-- /wp:heading -->
     {% endif %}
     <!-- wp:paragraph -->
-    {{ row[''] }}
     <p>
         <strong>{{ row['Position Readable Name'] }}</strong>: <a href="{{ row['Campaign Website'] }}"
     target="_blank"
@@ -47,7 +46,9 @@
         {% if row["Questionnarre Row"] != "" %}
             (<a href="https://camtb.org/TODO-QUESTIONNAIRRE/#{{ row['Position Code'] }}">CAMTB Questionnaire</a>)
         {% endif %}
-        : {{ row['Short message'] }}
+		{% autoescape false %}
+        : {{ ( row['Short message'] | trim | escape | replace('\n', '<br />') ) | safe }}
+		{% endautoescape %}
     </p>
     <!-- /wp:paragraph -->
 {% endfor %}
