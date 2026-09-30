@@ -30,6 +30,7 @@ function getEveryActionId($vanId) {
     return $eid;
 }
 
+// Any invalid path option will be considered to be contact.
 function getPath($option) {
 	$allowedPaths = [
 		'contact'      => 'ContactsDetails.aspx?VANID=',
@@ -57,11 +58,12 @@ if (isset($_GET['vanid'])) {
         // 3. Generate the URL if validation passes
         $eid = getEveryActionId($inputVanId);
 		
-		// 2. Read and strictly sanitize the "path" parameter using regex
-		$rawPath = isset($_GET['path']) ? trim($_GET['path']) : 'ContactsDetails';
+		// 2. Read and get the path.
+		$rawPath = isset($_GET['path']) ? trim($_GET['path']) : '';
 		$path = getPath($rawPath);
 		
-        //$everyActionUrl = "https://app.everyaction.com/ContactsDetails.aspx?VANID=" . $eid;
+		// Todo: Figure out how to make audit work. For some it's simple, others the URL has the eid more than once.
+		
 		$everyActionUrl = "https://app.everyaction.com/" . $path . $eid;
         
         // 4. Output the link 
