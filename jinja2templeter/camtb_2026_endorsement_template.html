@@ -44,7 +44,7 @@
     target="_blank"
     rel="noreferrer noopener">{{ row['Candidate'] }}</a>
         {% if row["Questionnarre Row"] != "" %}
-            (<a href="https://camtb.org/TODO-QUESTIONNAIRRE/#{{ row['Position Code'] }}">CAMTB Questionnaire</a>)
+            (<a href="https://camtb.org/2026/09/30/camtb-2026-legislative-recreation-questionnaire/#{{ row['Position Code'] }}">CAMTB Questionnaire</a>)
         {% endif %}
         {% autoescape false %}
             : {{ ( row['Short message'] | trim | escape | replace('\n', '<br />') ) | safe }}
