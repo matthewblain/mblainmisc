@@ -30,14 +30,17 @@ function getEveryActionId($vanId)
 // Any invalid path option will be considered to be contact.
 function getPath($option)
 {
+	// Note that details / contact have weird perisistance w/in everyaction.
+	// I'm not going to worry about changing that here, though I think it could be done.
     $allowedPaths = [
-        'contact' => 'ContactsDetails.aspx?VANID=',
+        'contact' => 'Contact.aspx?VANID=',
+		'contactdetails' => 'ContactsDetails.aspx?VANID=',
         'payment' => 'PaymentDetails.aspx?ContactsContributionID=',
         'contribution' => 'PaymentDetails.aspx?ContactsContributionID=',
         'source' => 'SourceCodeDetails.aspx?CodeID=',
         'activist' => 'ActivistCodeDetails.aspx?ActivistCodeID=',
     ];
-    $targetPath = $allowedPaths[$option] ?? 'ContactsDetails.aspx?VANID=';
+    $targetPath = $allowedPaths[$option] ?? 'Contact.aspx?VANID=';
     return $targetPath;
 }
 
