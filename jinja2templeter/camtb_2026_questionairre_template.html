@@ -1,10 +1,9 @@
 <style>
-  /* Target all headings so scrolling works right. The theme may have an option to fix this too but... */
-  .wp-block-heading * { 
+  {# Target all headings so scrolling works right. The theme may have an option to fix this too but... #}
+  .wp-block-heading *, .fixscroll { 
     scroll-margin-top: 90px !important; 
   }
 </style>
-
 <!-- wp:paragraph -->
 <p>
     The California Mountain Biking Coalition 2026 Legislative Recreation Questionnaire is one part of CAMTB's effort to inform voters in the 2026 General Election.
@@ -35,6 +34,24 @@
 <hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
 <!-- wp:html -->
+<p>
+    {% for row in csv_data %}
+        {% if loop.previtem is defined %}
+            {% if row["Legislative Body"] != loop.previtem["Legislative Body"] %}
+                • <a href="#TOC{{ row['Legislative Body'] }}">{{ row['Legislative Body'] }}</a>
+            {% endif %}
+        {% else %}
+            {# First row! #}
+            Jump to Index for: <a href="#TOC{{ row['Legislative Body'] }}">{{ row['Legislative Body'] }}</a>
+        {% endif %}
+    {% endfor %}
+</p>
+<!-- /wp:html -->
+<!-- /wp:paragraph -->
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity" />
+<!-- /wp:separator -->
+<!-- wp:html -->
 <ul>
     {% for row in csv_data %}
         {# Closing tags #}
@@ -45,14 +62,14 @@
                 </ul>
                 {# closebody #}
                 <li />
-                {{ row['Legislative Body'] }}
+                <a name="TOC{{ row['Legislative Body'] }}" class="fixscroll"></a><strong>{{ row['Legislative Body'] }}</strong>
                 <ul>
             {% else %}
             {% endif %}
         {% else %}
             {# First row! #}
             <li />
-            {{ row['Legislative Body'] }}
+            <a name="TOC{{ row['Legislative Body'] }}" class="fixscroll"></a><strong>{{ row['Legislative Body'] }}</strong>
             <ul>
         {% endif %}
         {% if loop.previtem is not defined %}
@@ -92,7 +109,7 @@
     {% if loop.previtem is not defined or row["District"] != loop.previtem["District"] %}
         <!-- wp:heading {"level":3} -->
         <h3 class="wp-block-heading">
-            {{ row['Legislative Body'] }} {{ row['District'] }}<a name="{{ row['Position Code'] }}" ></a>
+            {{ row['Legislative Body'] }} {{ row['District'] }}<a name="{{ row['Position Code'] }}"></a>
         </h3>
         <!-- /wp:heading -->
     {% endif %}
