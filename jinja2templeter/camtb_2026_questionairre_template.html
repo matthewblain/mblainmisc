@@ -85,7 +85,7 @@
     {% if loop.previtem is not defined or row["District"] != loop.previtem["District"] %}
         <!-- wp:heading {"level":3} -->
         <h3 class="wp-block-heading">
-            {{ row['Legislative Body'] }} {{ row['District'] }}<a name="{{ row['Position Code'] }}" />
+            {{ row['Legislative Body'] }} {{ row['District'] }}<a name="{{ row['Position Code'] }}" ></a>
         </h3>
         <!-- /wp:heading -->
     {% endif %}
