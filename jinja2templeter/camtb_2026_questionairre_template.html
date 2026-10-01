@@ -27,15 +27,22 @@
 <!-- wp:separator -->
 <hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
+
 <!-- wp:html -->
 <ul>
     {% for row in csv_data %}
-        {% if loop.previtem is defined and row["Legislative Body"] == loop.previtem["Legislative Body"] %}
+		{# Closing tags #}
+        {% if loop.previtem is defined %}
+			{%if  row["Legislative Body"] != loop.previtem["Legislative Body"] %}
+			</ul> {# closelastdistrictbeforebodychange #}
+			</ul> {# closebody #}
+            <li />
+            {{ row['Legislative Body'] }}
+            <ul>
+			{% else %}
+	    {% endif %}
         {% else %}
-            {% if loop.previtem is defined %}
-                </ul>
-            {% endif %}
-            </ul>
+			{# First row! #}
             <li />
             {{ row['Legislative Body'] }}
             <ul>
@@ -46,7 +53,7 @@
             <ul>
         {% elif row["District"] != loop.previtem["District"] %}
             {% if row["Legislative Body"] == loop.previtem["Legislative Body"] %}
-                </ul>
+                </ul> {# closedistrict #}
             {% endif %}
             <li />
             <a href="#{{ row['Position Code'] }}">{{ row['Legislative Body'] }} {{ row['District'] }}</a>
@@ -56,9 +63,11 @@
             <a href="#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"
                {% if row['Response Timestamp'] %}style="font-weight:bold;"{% endif %}>{{ row['First Name'] }} {{ row['Last Name'] }} {% if row["Incumbent?"]=="TRUE" %}<i>(Incumbent)</i>{% endif %}</a>
     {% endfor %}
-</ul>
-</ul>
+</ul> {# closelastdistrict #}
+</ul> {# closelastbody #}
+</ul> {# closetoc #}
 <!-- /wp:html -->
+
 <!-- wp:separator -->
 <hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
@@ -79,9 +88,10 @@
     {% if row["Response Timestamp"] %}
         <!-- wp:heading {"level":4} -->
         <h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row["Incumbent?"] == "TRUE" %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"></a></h4>
-        <!-- /wp:heading -->
+        <!-- /wp:heading -->  
+		
         <!-- wp:paragraph -->
-        <p>Party: {{ row['Party'] }}</p>
+        <p><strong>Party: </strong> {{ row['Party'] }}</p>
         <!-- /wp:paragraph -->
         <!-- wp:paragraph -->
         <p>
@@ -149,11 +159,10 @@
     {% endautoescape %}
 {% else %}
     <!-- wp:heading {"level":4} -->
-    <h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row["Incumbent?"] == "TRUE" %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}" />
-    </h4>
+    <h4 class="wp-block-heading">{{ row['First Name'] }} {{ row['Last Name'] }} {% if row["Incumbent?"] == "TRUE" %}<i>(Incumbent)</i>{% endif %}<a name="{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"></a></h4>
     <!-- /wp:heading -->
     <!-- wp:paragraph -->
-    <p>Party: {{ row['Party'] }}</p>
+    <p><strong>Party: </strong> {{ row['Party'] }}</p>
     <!-- /wp:paragraph -->
     <!-- wp:paragraph -->
     <p>
