@@ -1,0 +1,9 @@
+[project]
+name = "givebutter-automation"
+version = "0.1.0"
+description = "Various tools to work with the Givebutter API."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.34.2",
+]
