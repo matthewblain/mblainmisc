@@ -1,3 +1,11 @@
+<!-- wp:html -->
+<style>
+  {# Target all headings so scrolling works right. The theme may have an option to fix this too but... #}
+  a { 
+    scroll-margin-top: 100px !important; 
+  }
+</style>
+<!-- /wp:html -->
 <!-- wp:media-text {"mediaPosition":"right","mediaId":3546,"mediaLink":"https://camtb.org/camtb-logo-capitol-color/","mediaType":"image","mediaWidth":33} -->
 <div class="wp-block-media-text has-media-on-the-right is-stacked-on-mobile"
      style="grid-template-columns:auto 33%">
@@ -35,7 +43,7 @@
     {% if loop.previtem is not defined or row["Subregion"] != loop.previtem["Subregion"] %}
         <!-- wp:heading {"level":3} -->
         <h3 class="wp-block-heading">
-            <a name="{{ row['Region of CA'] }}{{ row['Subregion'] }}">{{ row['Subregion'] }}</a>
+            <a name="{{ (row['Region of CA'] ~ row['Subregion']) | replace(" ", "") }}" class="fixscroll">{{ row['Subregion'] }}</a>
         </h3>
         <!-- /wp:heading -->
     {% endif %}
