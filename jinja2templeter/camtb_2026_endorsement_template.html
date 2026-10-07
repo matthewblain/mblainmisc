@@ -10,15 +10,20 @@
 <div class="wp-block-media-text has-media-on-the-right is-stacked-on-mobile"
      style="grid-template-columns:auto 33%">
     <div class="wp-block-media-text__content">
-        <!-- wp:paragraph {"placeholder":"Content…"} -->
-        <p> The California Mountain Biking Coalition is keen to share our 2026 California November General Election voter guide and election endorsements. We support these candidates for their stance on and commitment to outdoor recreation and environmental stewardship in California.</p>
+        <!-- wp:paragraph -->
+        <p> <strong>Want More and Better Champions for Cycling and Trails in Office?</strong></p>
         <!-- /wp:paragraph -->
         <!-- wp:paragraph -->
-        <p>To learn more about our criteria for endorsement, read our <a href="https://camtb.org/camtb-advocacy-pillars/">Advocacy Pillars</a>. You can also view <a href="https://camtb.org/2026/09/30/camtb-2026-legislative-recreation-questionnaire/">Questionnaire responses</a>.</p>
+        <p>
+            The California Mountain Biking Coalition is here to help. Check out our 2026 Recreation Voter Guide below in local, regional, state, and federal legislative offices. CAMTB is here to support the cycling and trails community of California (aka YOU!). These candidates were chosen for their expressed and demonstrated commitment to supporting more and better trails in California.
+        </p>
+        <!-- /wp:paragraph -->
+        <!-- wp:paragraph -->
+        <p>To learn more about our criteria for endorsement, read our <a href="https://camtb.org/camtb-advocacy-pillars/">Advocacy Pillars</a>. You can also view <a href="https://camtb.org/2026/09/30/camtb-2026-legislative-recreation-questionnaire/">responses to a questionnairre</a> sent to all legislative candidates.</p>
         <!-- /wp:paragraph -->
     </div>
     <figure class="wp-block-media-text__media">
-        <img src="https://camtb.org/wp-content/uploads/2022/08/CAMTB-Logo-Capitol-Color-1024x1001.png"
+        <img src="https://camtb.org/wp-content/uploads/2019/12/CAMTBCapitollogo-White-BlackGlow-Transparent.png"
              alt="CAMTB Logo"
              class="wp-image-3546 size-full" />
     </figure>
@@ -29,7 +34,7 @@
     <em>Updated {{ lastupdated }}</em>
 </p>
 <!-- /wp:paragraph -->
-<!-- wp:uagb/table-of-contents {"block_id":"9d42457c","classMigrate":true,"borderStyle":"","borderWidth":"","borderRadius":"","overallBorderTopWidth":1,"overallBorderLeftWidth":1,"overallBorderRightWidth":1,"overallBorderBottomWidth":1,"overallBorderTopLeftRadius":6,"overallBorderTopRightRadius":6,"overallBorderBottomLeftRadius":6,"overallBorderBottomRightRadius":6,"overallBorderStyle":"solid"} /-->
+<!-- wp:uagb/table-of-contents {"block_id":"9d42457c","classMigrate":true,"smoothScrollOffset":90,"borderStyle":"","borderWidth":"","borderRadius":"","overallBorderTopWidth":1,"overallBorderLeftWidth":1,"overallBorderRightWidth":1,"overallBorderBottomWidth":1,"overallBorderTopLeftRadius":6,"overallBorderTopRightRadius":6,"overallBorderBottomLeftRadius":6,"overallBorderBottomRightRadius":6,"overallBorderStyle":"solid"} /-->
 <!-- wp:separator -->
 <hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
@@ -43,7 +48,8 @@
     {% if loop.previtem is not defined or row["Subregion"] != loop.previtem["Subregion"] %}
         <!-- wp:heading {"level":3} -->
         <h3 class="wp-block-heading">
-            <a name="{{ (row['Region of CA'] ~ row['Subregion']) | replace(" ", "") }}" class="fixscroll">{{ row['Subregion'] }}</a>
+            <a name="{{ (row['Region of CA'] ~ row['Subregion']) | replace(' ', '') }}"
+               class="fixscroll">{{ row['Subregion'] }}</a>
         </h3>
         <!-- /wp:heading -->
     {% endif %}
