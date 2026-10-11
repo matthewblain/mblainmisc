@@ -9,7 +9,8 @@
 # Also supports uploading it to Wordpress.
 #
 # Usage:
-#  templater template_filename csv_data output_filename [Wordpress endpoint]
+#  templater -t template_filename -i csv_data -o output_filename
+#    [-w Wordpress endpoint] [-k sort_key1] [-k sort_key2]
 #
 # The wordpress enpoint should be the WP-JSON endpoint for the post or page.
 # E.g.
@@ -24,6 +25,7 @@
 #  "questionnaire-info.csv" --drive-export-formats csv
 
 
+import argparse
 import base64
 import csv
 import os
@@ -79,15 +81,55 @@ def render_template(template_filename, csv_data):
     return template.render(csv_data=csv_data, lastupdated=lastupdated)
 
 
-# Usage:
-# templater templatefilename csvfilename > outputfilename
-def main():
-    template_filename = sys.argv[1]
-    csv_filename = sys.argv[2]
-    output_filename = sys.argv[3]
-    wp_upload_url = len(sys.argv) > 4 and sys.argv[4] or ""
+def sort_csv_data(reader, sort_keys):
+    # Data will always be materalized into a list.
+    data = list(reader)
+    if sort_keys:
+        for key in sort_keys:
+            data.sort(key=lambda r: r.get(key))
+    return data
 
-    if wp_upload_url:
+
+# Usage:
+def main():
+    parser = argparse.ArgumentParser(
+        description="Evaluate a jinja2 template with some CSV data."
+    )
+    parser.add_argument(
+        "-i",
+        "--input",
+        required=True,
+        dest="csv_filename",
+        help="Path to input csv data",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        required=True,
+        dest="output_filename",
+        help="Path to output html data",
+    )
+    parser.add_argument(
+        "-t",
+        "--template",
+        required=True,
+        dest="template_filename",
+        help="Path to jinja2 template",
+    )
+    parser.add_argument(
+        "-k",
+        "--sort_key",
+        dest="sort_keys",
+        help="Sort key(s) for data",
+        action="append",
+    )
+    parser.add_argument(
+        "-w", "--wp_upload_url", dest="wp_upload_url", help="URL for wp-JSON upload."
+    )
+
+    args = parser.parse_args()
+
+    if args.wp_upload_url:
         wp_user = os.getenv("TEMPLATER_WP_USER")
         if not wp_user:
             raise Exception(
@@ -99,20 +141,20 @@ def main():
                 "WP Upload URL specified but TEMPLATER_WP_ASP not in environment."
             )
 
-    with open(csv_filename, "r", encoding="utf-8") as f:
+    with open(args.csv_filename, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         # There simply won't be that many rows in anything
         # we care to render to a single page. And we might need
         # to go through it twice... materialize!
-        data = list(reader)
-        content = render_template(template_filename, data)
+        data = sort_csv_data(reader, args.sort_keys)
+        content = render_template(args.template_filename, data)
 
-    with open(output_filename, "w", encoding="utf-8") as f:
+    with open(args.output_filename, "w", encoding="utf-8") as f:
         f.write(content)
 
-    if wp_upload_url:
+    if args.wp_upload_url:
         # Let's hope the UTF-8 encoding works right here!
-        update_wp_page(wp_upload_url, wp_user, wp_asp, content)
+        update_wp_page(args.wp_upload_url, wp_user, wp_asp, content)
 
     return 0
 
