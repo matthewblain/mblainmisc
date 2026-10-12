@@ -35,25 +35,27 @@
     {% endif %}
     <!-- wp:paragraph -->
     <p>
-	    
-        <strong>{{ row['Position Readable Name'] }}</strong>: <a href="{{ row['Campaign Website'] }}"
+	    <span>{{ row['Position Readable Name'] }}</span>: <a href="{{ row['Campaign Website'] }}"
     target="_blank"
     rel="noreferrer noopener">{{ row['Candidate'] }}</a>
-	    (<a href="https://camtb.org/2026/10/07/camtb-endorsements-2026/#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}">CAMTB Endorsement</a>)
-        {% if row["Questionnarre Row"] != "" %}
-            (<a href="https://camtb.org/2026/09/30/camtb-2026-legislative-recreation-questionnaire/#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}">CAMTB Questionnaire</a>)
-        {% endif %}
+	<a href="https://camtb.org/2026/10/07/camtb-endorsements-2026/#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"
+    target="_blank"
+    rel="noreferrer noopener"><img alt="&#x1F6C8;" src="https://camtb.org/wp-content/uploads/2019/12/CAMTBCapitollogo-White-BlackGlow-Transparent-100x100.png" width=20 height=20></a>
     </p>
+	{# {{ row['Campaign Website'] }} #}
+	{# <a href="https://camtb.org/2026/10/07/camtb-endorsements-2026/#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"></a> #}
+	{# &#x1F6C8;  info icon #}
+	{# https://camtb.org/wp-content/uploads/2019/12/CAMTBCapitollogo-White-BlackGlow-Transparent-100x100.png #}
     <!-- /wp:paragraph -->
 {% endfor %}
 <!-- wp:spacer {"height":"75px"} -->
 <div style="height:75px" aria-hidden="true" class="wp-block-spacer"></div>
 <!-- /wp:spacer -->
 <!-- wp:heading {"level":1} -->
-<h1 class="wp-block-heading">Vote by November 6th!</h1>
+<h1 class="wp-block-heading">Vote by November 3rd!</h1>
 <!-- /wp:heading -->
 <!-- wp:paragraph -->
-<p>Election Day is Tuesday, November 6th. Every Californian registered to vote has received a ballot in the mail. You can mail it or drop it off on or before election day or vote in person at a polling place or election center. You can register to vote in person on Election Day. For more information on registering to vote and polling locations, see the <a href="https://www.sos.ca.gov/elections/polling-place"
+<p>Election Day is Tuesday, November 3rd. Every Californian registered to vote has received a ballot in the mail. You can mail it or drop it off on or before election day or vote in person at a polling place or election center. You can register to vote in person on Election Day. For more information on registering to vote and polling locations, see the <a href="https://www.sos.ca.gov/elections/polling-place"
     target="_blank"
     rel="noreferrer noopener">California state elections site</a>.</p>
 <!-- /wp:paragraph -->
