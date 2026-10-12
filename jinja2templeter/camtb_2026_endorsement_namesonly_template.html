@@ -23,6 +23,7 @@
     <em>Updated {{ lastupdated }}</em>
 </p>
 <!-- /wp:paragraph -->
+<!-- wp:uagb/table-of-contents {"block_id":"9d42456b","classMigrate":true,"smoothScrollOffset":90,"borderStyle":"","borderWidth":"","borderRadius":"","overallBorderTopWidth":1,"overallBorderLeftWidth":1,"overallBorderRightWidth":1,"overallBorderBottomWidth":1,"overallBorderTopLeftRadius":6,"overallBorderTopRightRadius":6,"overallBorderBottomLeftRadius":6,"overallBorderBottomRightRadius":6,"overallBorderStyle":"solid"} /-->
 <!-- wp:separator -->
 <hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
@@ -41,11 +42,12 @@
         <a href="https://camtb.org/2026/10/07/camtb-endorsements-2026/#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"
            target="_blank"
            rel="noreferrer noopener">
-            <img alt="{{ ('&#' ~ 'x1F6C8;') | safe }}"
+           <img alt="(i)"
                  title="CAMTB Endorsement"
                  src="https://camtb.org/wp-content/uploads/2019/12/CAMTBCapitollogo-White-BlackGlow-Transparent-100x100.png"
                  width="20"
-                 height="20">
+                 height="20"
+				 style="display:inline">
         </a>
     </p>
     {# {{ row['Campaign Website'] }} #}
