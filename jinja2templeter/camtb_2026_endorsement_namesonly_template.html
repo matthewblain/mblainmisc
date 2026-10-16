@@ -3,8 +3,65 @@
   {# Target all headings so scrolling works right. The theme may have an option to fix this too but... #}
   a { 
     scroll-margin-top: 100px !important; 
-  }
+  }  
 </style>
+<style id="dynamic-highlight-style"></style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const styleTag = document.getElementById('dynamic-highlight-style');
+  const sheet = styleTag.sheet;
+  const zipInput = document.getElementById('zipInput');
+  const highlightBtn = document.getElementById('highlightBtn');
+  const highlightHideBtn = document.getElementById('highlightHideBtn');
+
+  // Reusable function to update the stylesheet rules
+  function applyZipFilter(zipQuery, hide) {
+    while (sheet.cssRules.length > 0) {
+      sheet.deleteRule(0);
+    }
+
+    if (zipQuery !== "") {
+      const highlightRule = `p.ziprow[data-zips*="${zipQuery}"] { background-color: #fff3cd; transition: background-color 0.2s ease; }`;
+      sheet.insertRule(highlightRule, 0);
+	  
+	  if (hide) {
+		  const hideRule = `p.ziprow:not([data-zips*="${zipQuery}"]) { display: none; }`;
+		  sheet.insertRule(hideRule, 1);
+	  }
+    }
+  }
+
+  // A. Check URL parameters on page load
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialZip = urlParams.get('zip');
+  const initialHide = urlParams.get('hide');
+  if (initialZip) {
+    zipInput.value = initialZip; // Fill input box with the URL value
+	let hideOnLoad = initialHide == 'true';
+    applyZipFilter(initialZip.toLowerCase(), hideOnLoad);
+  }
+
+  // B. Handle button click
+  highlightBtn.addEventListener('click', () => {
+    const zipQuery = zipInput.value.trim().toLowerCase();
+    applyZipFilter(zipQuery, false);
+  });
+
+
+  // B. Handle button click
+  highlightHideBtn.addEventListener('click', () => {
+    const zipQuery = zipInput.value.trim().toLowerCase();
+    applyZipFilter(zipQuery, true);
+  });
+  
+  // C. Optional: Allow pressing "Enter" inside the input box to trigger it
+  zipInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      highlightBtn.click();
+    }
+  });
+});
+</script>
 <!-- /wp:html -->
 <!-- wp:paragraph -->
 <p> <strong>Want More and Better Champions for Cycling and Trails in Office?</strong></p>
@@ -16,6 +73,15 @@
     Candidates are in local, regional, state, and federal legislative offices.
     CAMTB is here to support the cycling and trails community of California (aka YOU!).
     These candidates were chosen for their expressed and demonstrated commitment to supporting more and better trails in California.
+</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p style="margin-bottom: 20px;">
+  Want to find candidates near you? Enter your ZIP code here. 
+  <input type="text" id="zipInput" placeholder="Enter ZIP code (e.g. 95658)">
+  <button id="highlightBtn">Highlight</button> <button id="highlightHideBtn">Show only matching</button>
+  <br>
+  Note: ZIP codes are not the same as political boundaries, this may show candidates in your zip code but not your house.
 </p>
 <!-- /wp:paragraph -->
 <!-- wp:paragraph {"style":{"typography":{"textAlign":"right"}}} -->
@@ -35,20 +101,21 @@
         <!-- /wp:heading -->
     {% endif %}
     <!-- wp:paragraph -->
-    <p>
+    <p data-zips="{{ row['ZCTA5CE20'] | join(" ") }}" class="ziprow">
         <span>{{ row['Position Readable Name'] }}</span>: <a href="{{ row['Campaign Website'] }}"
     target="_blank"
     rel="noreferrer noopener">{{ row['Candidate'] }}</a>
         <a href="https://camtb.org/2026/10/07/camtb-endorsements-2026/#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"
            target="_blank"
            rel="noreferrer noopener">
-           <img alt="(i)"
+            <img alt="(i)"
                  title="CAMTB Endorsement"
                  src="https://camtb.org/wp-content/uploads/2019/12/CAMTBCapitollogo-White-BlackGlow-Transparent-100x100.png"
                  width="20"
                  height="20"
-				 style="display:inline">
+                 style="display:inline">
         </a>
+        <span style="font-size: 5pt;">{{ row['ZCTA5CE20'] | join(" ") }}</span>
     </p>
     {# {{ row['Campaign Website'] }} #}
     {# <a href="https://camtb.org/2026/10/07/camtb-endorsements-2026/#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"></a> #}
