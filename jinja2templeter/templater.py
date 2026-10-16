@@ -90,6 +90,20 @@ def sort_csv_data(reader, sort_keys):
     return data
 
 
+def join_data(data, jreader, join_lkey, join_rkey, join_value):
+    # Join data with data in jreader
+    # Modifies data in-place.
+    # Todo: Allow a different join key on the left and right.
+
+    join_dict = {}
+
+    for row in jreader:
+        join_dict.setdefault(row[join_rkey], []).append(row[join_value])
+
+    for row in data:
+        row[join_value] = join_dict.get(row[join_lkey])
+
+
 # Usage:
 def main():
     parser = argparse.ArgumentParser(
@@ -124,6 +138,26 @@ def main():
         action="append",
     )
     parser.add_argument(
+        "--join_csv",
+        dest="join_csv",
+        help="CSV file of data to join with main CSV input",
+    )
+    parser.add_argument(
+        "--join_lkey",
+        dest="join_lkey",
+        help="Column name of key in input CSV to lookup for join.",
+    )
+    parser.add_argument(
+        "--join_rkey",
+        dest="join_rkey",
+        help="Column name of key in join CSV to lookup for join.",
+    )
+    parser.add_argument(
+        "--join_value",
+        dest="join_value",
+        help="Column name for the value in join_csv to add to the CSV input",
+    )
+    parser.add_argument(
         "-w", "--wp_upload_url", dest="wp_upload_url", help="URL for wp-JSON upload."
     )
 
@@ -141,12 +175,29 @@ def main():
                 "WP Upload URL specified but TEMPLATER_WP_ASP not in environment."
             )
 
+    if (
+        args.join_csv
+        and not args.join_lkey
+        or not args.join_rkey
+        or not args.join_value
+    ):
+        raise Exception(
+            "Must specify join_lkey and join_rkey and join_value if join_csv is specified."
+        )
+
     with open(args.csv_filename, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         # There simply won't be that many rows in anything
         # we care to render to a single page. And we might need
         # to go through it twice... materialize!
         data = sort_csv_data(reader, args.sort_keys)
+        if args.join_csv:
+            with open(args.join_csv, "r", encoding="utf-8") as jf:
+                jreader = csv.DictReader(jf)
+                join_data(
+                    data, jreader, args.join_lkey, args.join_rkey, args.join_value
+                )
+
         content = render_template(args.template_filename, data)
 
     with open(args.output_filename, "w", encoding="utf-8") as f:
