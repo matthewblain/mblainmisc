@@ -39,7 +39,7 @@ PRODUCT_SERVICE_MAP = {
     "The Teen Ambassador Fund": "TeenAmbassador",
     "Unrestricted Donation": "Unrestricted",
     "Unrestricted donation - no tax receipt": "Unrestricted",
-    "Unrestricted Grant": "Unrestricted",
+    "Unrestricted Grant": "INVALID",  # May require more analysis.
 }
 
 
@@ -455,6 +455,9 @@ def main():
             # Successes is really both the req and the resp but that's OK
             # This is really for debugging purposes anyway.
             write_output(successes, args.output_transactions)
+            print(
+                f"[SUCCESS] Wrote {len(successes)} transactions to '{args.output_transaction_requests}'"
+            )
 
         # Update and re-write soft-credits
 
@@ -464,6 +467,12 @@ def main():
             f"[SUCCESS] Re-Wrote {len(soft_credits)} soft credits to '{args.output_softcredits}'"
         )
         print("Now go to dashboard givebutter /settings/imports and upload that file.")
+    elif args.output_transactions:
+        # Similar format to the real one, just with a blank 'response'.
+        write_output([(tx, None) for tx in transactions], args.output_transactions)
+        print(
+            f"[SUCCESS] Wrote {len(transactions)} transactions to '{args.output_transactions}'"
+        )
 
 
 if __name__ == "__main__":
