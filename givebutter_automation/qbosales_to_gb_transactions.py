@@ -5,11 +5,11 @@ Author:       Gemini, modified a lot by mblain, October 2026.
 Description:  A tool to copy data from QBO to GB.
               Transforms sales and invoices CSVs from Quickbooks Online into
               Givebutter-compliant transaction payloads and soft credits.
-              
+
               Can actually create the transactions using the Givebutter API.
               Soft Credits are not in the API, but require the tx ID and thus
               thus uses the API to create the TX and records that in the credit.
-              
+
               The sales and transasctions and Customers are SELECT * From Table
               in the QBO API. TODO: Make it the actual JSON.
 =============================================================================
@@ -122,22 +122,28 @@ class StoreTransactionRequest:
     department_code: Optional[str] = None
 
     # Contact Details
+    # Will create a new Contact with this info if no contact ID provided.
+    # Not used in this script;
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
-    employer: Optional[str] = None
-    address: Optional[Address] = None
+    company: Optional[str] = None
+    address_1: Optional[str] = None
+    address_2: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip: Optional[str] = None
+    country: Optional[str] = None
 
     # Notes & Dedication
     description: Optional[str] = None
     public_name: Optional[str] = None
-    note: Optional[str] = None
+    internal_note: Optional[str] = None
     thank_you_message: Optional[str] = None
-    dedication_type: Optional[str] = None
-    dedication_honoree_name: Optional[str] = None
+    dedication_type: Optional[str] = None  # 'in_honor_of' or 'in_memory_of'
+    dedication_name: Optional[str] = None
     dedication_recipient_name: Optional[str] = None
-    dedication_recipient_email: Optional[str] = None
 
     # Line Items & Custom Fields
     line_items: List[LineItem] = field(default_factory=list)
@@ -210,16 +216,18 @@ def process_sales_data(sales_csv: str, customer_csv: str, campaign_code: str):
             raw_amount = row.get("Line item amount")
             amount = float(raw_amount.replace("$", "").replace(",", "").strip())
             assert row.get("Currency") == "United States Dollar"
-            
-            method = TransactionMethod.OTHER   # TODO: Figure this out.
-            
+
+            method = TransactionMethod.OTHER  # TODO: Figure this out.
+
             # Construct Internal Note mapping
             tx_id = row.get("Transaction ID", "").strip()
             dept_name = row.get("Department name", "").strip()
             match row.get("Transaction type"):
-                case 'Sales Receipt':
-                    internal_note = f"https://qbo.intuit.com/app/salesreceipt?txnId={tx_id}"
-                case 'Invoice':
+                case "Sales Receipt":
+                    internal_note = (
+                        f"https://qbo.intuit.com/app/salesreceipt?txnId={tx_id}"
+                    )
+                case "Invoice":
                     internal_note = f"https://qbo.intuit.com/app/invoice?txnId={tx_id}"
                 case _:
                     raise Exception(f"Unknown Transaction Type for {row}")
@@ -229,7 +237,7 @@ def process_sales_data(sales_csv: str, customer_csv: str, campaign_code: str):
                 internal_note += f"\nImpact Fund Grant: {dept_name}"
             if cust_info.get("ParentRef"):
                 # There will be a soft credit here.
-                internal_note += f"\nDAF: {cust_info['Fully Qualified Name']}"
+                internal_note += f"\nAttribution: {cust_info['Fully Qualified Name']}"
 
             # Check if this is a DAF type situation.
             # That is, there's a parent ID for the customer. The true
@@ -251,7 +259,7 @@ def process_sales_data(sales_csv: str, customer_csv: str, campaign_code: str):
                 transacted_at=row.get("Transaction date"),
                 external_label="QBO-CATF",
                 external_id=tx_id,
-                note=internal_note,
+                internal_note=internal_note,
                 contact_external_id=customer_id,
                 currency="USD",
             )
@@ -276,7 +284,8 @@ def upload_transactions_to_givebutter(transactions: List[Dict[str, Any]], api_ke
 
     success_count = 0
     failure_count = 0
-    id_map = {}  # External ID : Givebutter ID
+    successes = []
+    failures = []
 
     print(
         f"\nStarting API upload for {len(transactions)} transactions to Givebutter..."
@@ -287,27 +296,64 @@ def upload_transactions_to_givebutter(transactions: List[Dict[str, Any]], api_ke
             response = requests.post(GIVEBUTTER_API_URL, json=tx, headers=headers)
             if response.status_code in (200, 201):
                 success_count += 1
+                transaction_resource = response.json()
                 print(
-                    f"[{idx}/{len(transactions)}] Successfully posted External ID: {tx.get('external_id')}"
+                    f"[{idx} of {len(transactions)}] Successfully posted "
+                    f"External ID: {tx.get('external_id')} "
+                    f"Givebutter ID: {transaction_resource.get('number')}"
                 )
-                print(response.text)
+                successes.append((tx, transaction_resource))
             else:
                 failure_count += 1
-                print(
-                    f"[{idx}/{len(transactions)}] Failed External ID: {tx.get('external_id')} | Status: {response.status_code} | {response.text}"
-                )
+                failure = f"[{idx} of {len(transactions)}] Failed External ID: {tx.get('external_id')} | Status: {response.status_code} | {response.text}"
+                print(failure)
+                failures.append((tx, failure))
         except requests.exceptions.RequestException as e:
             failure_count += 1
-            print(f"[{idx}/{len(transactions)}] Connection error: {e}")
+            failure = f"[{idx} of {len(transactions)}] Connection error: {e}"
+            print(failure)
+            failures.append((tx, failure))
 
         # Rate limit is 500tps so.... this could be vastly improved by
-        # simply wiating for a 429 backoff response. Do max. 50tps for now.
+        # simply wiating for a 429 backoff response. Do max. 100tps for now.
         # https://docs.givebutter.com/api-reference/rate-limits
-        time.sleep(0.02)
+        time.sleep(0.01)
 
     print(f"\n--- Upload Finished ---")
     print(f"Successfully uploaded: {success_count}")
     print(f"Failed uploads: {failure_count}")
+
+    return (successes, failures)
+
+
+def add_txid_to_soft_credits(tx_uploads, soft_credits):
+    """Add the transaction ID to soft credits.
+
+    tx_results = list of (StoreTransactionRequest, TransactionResource)
+    soft_credits = list of soft credits.
+
+    Both are in dict/python form.
+    """
+    id_map = {}  # external id : givebutter id.
+
+    for req, resp in tx_uploads:
+        assert req["external_id"] not in id_map
+        assert req["external_id"] == resp["external_id"]["external_id"]
+        id_map[req["external_id"]] = resp["number"]
+
+    for soft_credit in soft_credits:
+        # This will fail if there were any failures uploading the transaction.
+        # E.g. if there was a dupte of the external ID.
+        gb_id = id_map.get(soft_credit["external_transaction_id"])
+        if gb_id:
+            soft_credit["transaction_id"] = gb_id
+        else:
+            print(
+                f"WARNING: Could not find external transaction ID "
+                f"{soft_credit["external_transaction_id"]} in list of created transactions."
+            )
+
+    return id_map
 
 
 def write_output(data: List[Dict[str, Any]], file_path: str):
@@ -347,10 +393,15 @@ def main():
         help="Path to the input Customer CSV file",
     )
     parser.add_argument(
+        "--output_transaction_requests",
+        type=str,
+        required=False,
+        help="Path to output generated transactions JSON file",
+    )
+    parser.add_argument(
         "--output_transactions",
         type=str,
-        required=True,
-        help="Path to output generated transactions JSON file",
+        help="Path to output result transactions JSON file",
     )
     parser.add_argument(
         "--output_softcredits",
@@ -378,27 +429,41 @@ def main():
         transactions, soft_credits = process_sales_data(
             args.sales_csv, args.customer_csv, args.campaign_code
         )
-
-        write_output(transactions, args.output_transactions)
-
-        print(
-            f"[SUCCESS] Wrote {len(transactions)} transactions to '{args.output_transactions}'"
-        )
-
-        # Output Soft Credits
-        write_output(soft_credits, args.output_softcredits)
-        print(
-            f"[SUCCESS] Wrote {len(soft_credits)} soft credits to '{args.output_softcredits}'"
-        )
-
-        # Upload to Givebutter if API key is supplied
-        # TODO: Upload TX before writing soft credits, update soft credits with internal ID, write them.
-        if args.api_key:
-            upload_transactions_to_givebutter(transactions, args.api_key)
-
     except FileNotFoundError as e:
         print(f"[ERROR] Input file not found: {e}", file=sys.stderr)
         sys.exit(1)
+
+    if args.output_transaction_requests:
+        write_output(transactions, args.output_transaction_requests)
+        print(
+            f"[SUCCESS] Wrote {len(transactions)} transactions to '{args.output_transaction_requests}'"
+        )
+
+    # Output Soft Credits
+    write_output(soft_credits, args.output_softcredits)
+    print(
+        f"[SUCCESS] Wrote {len(soft_credits)} soft credits to '{args.output_softcredits}'"
+    )
+
+    # Upload to Givebutter if API key is supplied
+    if args.api_key:
+        successes, failures = upload_transactions_to_givebutter(
+            transactions, args.api_key
+        )
+
+        if args.output_transactions:
+            # Successes is really both the req and the resp but that's OK
+            # This is really for debugging purposes anyway.
+            write_output(successes, args.output_transactions)
+
+        # Update and re-write soft-credits
+
+        add_txid_to_soft_credits(successes, soft_credits)
+        write_output(soft_credits, args.output_softcredits)
+        print(
+            f"[SUCCESS] Re-Wrote {len(soft_credits)} soft credits to '{args.output_softcredits}'"
+        )
+        print("Now go to dashboard givebutter /settings/imports and upload that file.")
 
 
 if __name__ == "__main__":
