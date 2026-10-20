@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
     </figure>
 </div>
 <!-- /wp:media-text -->
-
 <!-- wp:paragraph {"style":{"typography":{"textAlign":"right"}}} -->
 <p class="has-text-align-right">
     <em>Updated {{ lastupdated }}</em>
@@ -95,12 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- wp:uagb/table-of-contents {"block_id":"9d42457c","classMigrate":true,"smoothScrollOffset":90,"borderStyle":"","borderWidth":"","borderRadius":"","overallBorderTopWidth":1,"overallBorderLeftWidth":1,"overallBorderRightWidth":1,"overallBorderBottomWidth":1,"overallBorderTopLeftRadius":6,"overallBorderTopRightRadius":6,"overallBorderBottomLeftRadius":6,"overallBorderBottomRightRadius":6,"overallBorderStyle":"solid"} /-->
 <!-- wp:paragraph -->
 <p style="margin-bottom: 20px;">
-  <strong>We've made it easy to find endorsed candidates near you! Enter your ZIP code here: </strong>
-  <input type="text" id="zipInput" placeholder="Enter ZIP code here then click Highlight">
-  <button id="highlightHideBtn" style="font-size:9pt;">Highlight matching candidates & hide others</button>
-  <button id="highlightBtn" style="font-size:9pt;">Highlight matching candidates & show all</button> 
-  <br>
-  Note: This may highlight districts you are near but not in.
+    <strong>We've made it easy to find endorsed candidates near you! Enter your ZIP code here:</strong>
+    <input type="text"
+           id="zipInput"
+           placeholder="Enter ZIP code here then click Highlight">
+    <button id="highlightHideBtn" style="font-size:9pt;">Highlight matching candidates & hide others</button>
+    <button id="highlightBtn" style="font-size:9pt;">Highlight matching candidates & show all</button>
+    <br>
+    Note: This may highlight districts you are near but not in.
 </p>
 <!-- /wp:paragraph -->
 <!-- wp:separator -->
@@ -125,9 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
     <p data-zips="{{ row['ZCTA5CE20'] | join(" ") }}" class="ziprow">
         <a name="{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"></a>
         <strong>{{ row['Position Readable Name'] }}</strong>:
-		<a href="{{ row['Campaign Website'] }}"
-    target="_blank"
-    rel="noreferrer noopener">{{ row['Candidate'] }}</a>
+        <a href="{{ row['Campaign Website'] }}"
+           target="_blank"
+           rel="noreferrer noopener">{{ row['Candidate'] }}</a>
         {% if row["Questionnarre Row"] != "" %}
             (<a href="https://camtb.org/2026/09/30/camtb-2026-legislative-recreation-questionnaire/#{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}">CAMTB Questionnaire</a>)
         {% endif %}
