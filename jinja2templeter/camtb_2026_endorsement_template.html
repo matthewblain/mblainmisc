@@ -5,6 +5,63 @@
     scroll-margin-top: 100px !important; 
   }
 </style>
+<style id="dynamic-highlight-style"></style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const styleTag = document.getElementById('dynamic-highlight-style');
+  const sheet = styleTag.sheet;
+  const zipInput = document.getElementById('zipInput');
+  const highlightBtn = document.getElementById('highlightBtn');
+  const highlightHideBtn = document.getElementById('highlightHideBtn');
+
+  // Reusable function to update the stylesheet rules
+  function applyZipFilter(zipQuery, hide) {
+    while (sheet.cssRules.length > 0) {
+      sheet.deleteRule(0);
+    }
+
+    if (zipQuery !== "") {
+      const highlightRule = `p.ziprow[data-zips*="${zipQuery}"] { background-color: #fff3cd; transition: background-color 0.2s ease; }`;
+      sheet.insertRule(highlightRule, 0);
+	  
+	  if (hide) {
+		  const hideRule = `p.ziprow:not([data-zips*="${zipQuery}"]) { display: none; }`;
+		  sheet.insertRule(hideRule, 1);
+	  }
+    }
+  }
+
+  // A. Check URL parameters on page load
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialZip = urlParams.get('zip');
+  const initialHide = urlParams.get('hide');
+  if (initialZip) {
+    zipInput.value = initialZip; // Fill input box with the URL value
+	let hideOnLoad = initialHide == 'true';
+    applyZipFilter(initialZip.toLowerCase(), hideOnLoad);
+  }
+
+  // B. Handle button click
+  highlightBtn.addEventListener('click', () => {
+    const zipQuery = zipInput.value.trim().toLowerCase();
+    applyZipFilter(zipQuery, false);
+  });
+
+
+  // B. Handle button click
+  highlightHideBtn.addEventListener('click', () => {
+    const zipQuery = zipInput.value.trim().toLowerCase();
+    applyZipFilter(zipQuery, true);
+  });
+  
+  // C. Optional: Allow pressing "Enter" inside the input box to trigger it
+  zipInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      highlightHideBtn.click();
+    }
+  });
+});
+</script>
 <!-- /wp:html -->
 <!-- wp:media-text {"mediaPosition":"right","mediaId":3546,"mediaLink":"https://camtb.org/camtb-logo-capitol-color/","mediaType":"image","mediaWidth":33} -->
 <div class="wp-block-media-text has-media-on-the-right is-stacked-on-mobile"
@@ -29,12 +86,23 @@
     </figure>
 </div>
 <!-- /wp:media-text -->
+
 <!-- wp:paragraph {"style":{"typography":{"textAlign":"right"}}} -->
 <p class="has-text-align-right">
     <em>Updated {{ lastupdated }}</em>
 </p>
 <!-- /wp:paragraph -->
 <!-- wp:uagb/table-of-contents {"block_id":"9d42457c","classMigrate":true,"smoothScrollOffset":90,"borderStyle":"","borderWidth":"","borderRadius":"","overallBorderTopWidth":1,"overallBorderLeftWidth":1,"overallBorderRightWidth":1,"overallBorderBottomWidth":1,"overallBorderTopLeftRadius":6,"overallBorderTopRightRadius":6,"overallBorderBottomLeftRadius":6,"overallBorderBottomRightRadius":6,"overallBorderStyle":"solid"} /-->
+<!-- wp:paragraph -->
+<p style="margin-bottom: 20px;">
+  <strong>We've made it easy to find endorsed candidates near you! Enter your ZIP code here: </strong>
+  <input type="text" id="zipInput" placeholder="Enter ZIP code here then click Highlight">
+  <button id="highlightHideBtn" style="font-size:9pt;">Highlight matching candidates & hide others</button>
+  <button id="highlightBtn" style="font-size:9pt;">Highlight matching candidates & show all</button> 
+  <br>
+  Note: This may highlight districts you are near but not in.
+</p>
+<!-- /wp:paragraph -->
 <!-- wp:separator -->
 <hr class="wp-block-separator has-alpha-channel-opacity" />
 <!-- /wp:separator -->
@@ -54,9 +122,10 @@
         <!-- /wp:heading -->
     {% endif %}
     <!-- wp:paragraph -->
-    <p>
+    <p data-zips="{{ row['ZCTA5CE20'] | join(" ") }}" class="ziprow">
         <a name="{{ row['Position Code'] }}{{ row['Last Name'] | replace(' ', '') }}"></a>
-        <strong>{{ row['Position Readable Name'] }}</strong>: <a href="{{ row['Campaign Website'] }}"
+        <strong>{{ row['Position Readable Name'] }}</strong>:
+		<a href="{{ row['Campaign Website'] }}"
     target="_blank"
     rel="noreferrer noopener">{{ row['Candidate'] }}</a>
         {% if row["Questionnarre Row"] != "" %}
@@ -80,7 +149,7 @@
     rel="noreferrer noopener">California state elections site</a>.</p>
 <!-- /wp:paragraph -->
 <!-- wp:paragraph -->
-<p>Want to know what district you (or someone you know) lives in? Use these tools:</p>
+<p>Want to know what district you (or someone you know) lives in? Use the zip code filter at the top or these tools:</p>
 <!-- /wp:paragraph -->
 <!-- wp:list -->
 <ul class="wp-block-list">
