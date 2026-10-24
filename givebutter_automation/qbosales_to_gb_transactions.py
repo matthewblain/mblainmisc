@@ -178,6 +178,26 @@ class StoreTransactionRequest:
 def process_sales_data(sales_csv: str, customer_csv: str, campaign_code: str):
     """
     Applies field mappings and product/service map lookup to generate outputs.
+
+    Expected headers in invoices and sales CSV:
+        Transaction type
+        Transaction ID
+        Transaction date
+        Transaction date time
+        Customer
+        Customer ID
+        Product service
+        Total amount
+        Line item amount
+        Line description
+        Private note
+        Customer memo
+        Balance
+        Currency
+        Payment reference
+        Department ID
+        Department name
+        Document number
     """
     transactions = []
     soft_credits = []
@@ -217,27 +237,33 @@ def process_sales_data(sales_csv: str, customer_csv: str, campaign_code: str):
             amount = float(raw_amount.replace("$", "").replace(",", "").strip())
             assert row.get("Currency") == "United States Dollar"
 
-            method = TransactionMethod.OTHER  # TODO: Figure this out.
+            method = TransactionMethod.OTHER  # TODO: Figure out a better mapping.
+
+            # A Givebutter Transaction doesn't have custom fields.
+            # (It half does!)
+            # So for now we'll use the internal_note with some structure.
+
+            internal_note_info = {}
 
             # Construct Internal Note mapping
             tx_id = row.get("Transaction ID", "").strip()
-            dept_name = row.get("Department name", "").strip()
             match row.get("Transaction type"):
                 case "Sales Receipt":
-                    internal_note = (
+                    internal_note_info["source"] = (
                         f"https://qbo.intuit.com/app/salesreceipt?txnId={tx_id}"
                     )
                 case "Invoice":
-                    internal_note = f"https://qbo.intuit.com/app/invoice?txnId={tx_id}"
+                    internal_note_info["source"] = (
+                        f"https://qbo.intuit.com/app/invoice?txnId={tx_id}"
+                    )
                 case _:
                     raise Exception(f"Unknown Transaction Type for {row}")
 
-            internal_note = f"https://qbo.intuit.com/app/salesreceipt?txnId={tx_id}"
+            # We're using "Department" to track which dibursement (if any)
+            # this transaction is associated with.
+            dept_name = row.get("Department name", "").strip()
             if dept_name:
-                internal_note += f"\nImpact Fund Grant: {dept_name}"
-            if cust_info.get("ParentRef"):
-                # There will be a soft credit here.
-                internal_note += f"\nAttribution: {cust_info['Fully Qualified Name']}"
+                internal_note_info["DisbursementId"] = dept_name
 
             # Check if this is a DAF type situation.
             # That is, there's a parent ID for the customer. The true
@@ -249,6 +275,9 @@ def process_sales_data(sales_csv: str, customer_csv: str, campaign_code: str):
                 soft_credit["contact_external_id"] = customer_id
                 soft_credit["note"] = "DAF " + cust_info["Fully Qualified Name"]
                 customer_id = cust_info.get("ParentRef")
+                internal_note_info["attribution"] = soft_credit
+
+            internal_note = json.dumps(internal_note_info)
 
             # Build StoreTransactionRequest payload
             tx_request = StoreTransactionRequest(
@@ -267,7 +296,6 @@ def process_sales_data(sales_csv: str, customer_csv: str, campaign_code: str):
             transactions.append(tx_request.to_dict())
 
             # Check for soft credit records if present
-            soft_credit_contact = row.get("soft_credit_contact_id")
             if soft_credit:
                 soft_credits.append(soft_credit)
 
@@ -452,15 +480,28 @@ def main():
         )
 
         if args.output_transactions:
+            # Note this format is slightly different than the 'noupload' format,
+            # in that this is just the transactions while the other one includes all the results.
+            # Really it should be a different file but still...
+
             # Successes is really both the req and the resp but that's OK
             # This is really for debugging purposes anyway.
-            write_output(successes, args.output_transactions)
-            print(
-                f"[SUCCESS] Wrote {len(successes)} transactions to '{args.output_transaction_requests}'"
-            )
+            use_csv = os.path.splitext(args.output_transactions)[1] == ".csv"
+            if use_csv:
+                write_output(transactions, args.output_transactions)
+                print(
+                    f"[SUCCESS] Wrote {len(transactions)} transactions to '{args.output_transactions}'"
+                )
+            else:
+                write_output(
+                    {"successes": successes, "failures": failures},
+                    args.output_transactions,
+                )
+                print(
+                    f"[SUCCESS] Wrote {len(successes)} + {len(failures)} transactions to '{args.output_transaction_requests}'"
+                )
 
         # Update and re-write soft-credits
-
         add_txid_to_soft_credits(successes, soft_credits)
         write_output(soft_credits, args.output_softcredits)
         print(
@@ -468,8 +509,9 @@ def main():
         )
         print("Now go to dashboard givebutter /settings/imports and upload that file.")
     elif args.output_transactions:
-        # Similar format to the real one, just with a blank 'response'.
-        write_output([(tx, None) for tx in transactions], args.output_transactions)
+        # Note this format is slightly different than the 'upload' format,
+        # in that this is just the transactions while the other one includes all the results.
+        write_output(transactions, args.output_transactions)
         print(
             f"[SUCCESS] Wrote {len(transactions)} transactions to '{args.output_transactions}'"
         )

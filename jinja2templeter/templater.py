@@ -175,15 +175,11 @@ def main():
                 "WP Upload URL specified but TEMPLATER_WP_ASP not in environment."
             )
 
-    if (
-        args.join_csv
-        and not args.join_lkey
-        or not args.join_rkey
-        or not args.join_value
-    ):
-        raise Exception(
-            "Must specify join_lkey and join_rkey and join_value if join_csv is specified."
-        )
+    if args.join_csv:
+        if not args.join_lkey or not args.join_rkey or not args.join_value:
+            raise Exception(
+                "Must specify join_lkey and join_rkey and join_value if join_csv is specified."
+            )
 
     with open(args.csv_filename, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
