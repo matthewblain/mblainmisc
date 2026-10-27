@@ -66,7 +66,7 @@ def create_internal_api_session(sample_internal_request):
 
 def get_campaigns(api_requests):
     """Get all active campaigns and return dict keyed by title."""
-    url = f"https://api.givebutter.com/v1/campaigns/"
+    url = f"https://api.givebutter.com/v1/campaigns/?per_page=99"
 
     print(f"[INFO] Getting existing campaigns", file=sys.stderr)
     response = api_requests.get(url)
@@ -91,15 +91,20 @@ def get_campaigns(api_requests):
             continue
         campaigns[title] = campaign_data
 
+    # Todo: Pagination!
+    assert not response.json()["links"]["next"]
+
     print(f"[INFO] Read {len(campaigns)} campaigns", file=sys.stderr)
 
     return campaigns
 
 
 def get_campaign_members(campaign_id, api_requests):
-    # This will return the team members for a give campaign.
+    """Return the team members for a give campaign."""
 
-    url = f"https://api.givebutter.com/v1/campaigns/{campaign_id}/members"
+    # Going for as many as we can get at once. Fewer API calls, but also
+    # due to a pagination bug where the cursor doesn't seem to always be stable.
+    url = f"https://api.givebutter.com/v1/campaigns/{campaign_id}/members?per_page=99"
 
     # Dictionary of members by display name.
     members = {}
@@ -117,6 +122,8 @@ def get_campaign_members(campaign_id, api_requests):
             raise Exception(
                 f"[ERROR] Failed to get team members for eam ID {campaign_id} | Status: {response.status_code} | {response.text}"
             )
+
+        # print(response.text)
 
         response_json = response.json()
         members_data = response_json["data"]
