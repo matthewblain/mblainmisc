@@ -98,32 +98,42 @@ def get_campaigns(api_requests):
 
 def get_campaign_members(campaign_id, api_requests):
     # This will return the team members for a give campaign.
+
     url = f"https://api.givebutter.com/v1/campaigns/{campaign_id}/members"
-
-    print(
-        f"[INFO] Getting existing members for campaign {campaign_id}.", file=sys.stderr
-    )
-    response = api_requests.get(url)
-
-    if response.status_code not in (200, 201):
-        raise Exception(
-            f"[ERROR] Failed to get team members for eam ID {campaign_id} | Status: {response.status_code} | {response.text}"
-        )
 
     # Dictionary of members by display name.
     members = {}
 
-    members_data = response.json()["data"]
-    for member_data in members_data:
-        title = member_data["display_name"]
-        id = member_data["id"]
-        if title in members:
-            print(
-                f"[WARNING] member in {campaign_id} with display_name {title} already exists. Skipping {id} in favor of {members[title]['id']} ",
-                file=sys.stderr,
+    next_url = url
+    page = 1
+    while next_url:
+        print(
+            f"[INFO] Getting existing members for campaign {campaign_id} pg {page}.",
+            file=sys.stderr,
+        )
+        response = api_requests.get(next_url)
+
+        if response.status_code not in (200, 201):
+            raise Exception(
+                f"[ERROR] Failed to get team members for eam ID {campaign_id} | Status: {response.status_code} | {response.text}"
             )
-            continue
-        members[title] = member_data
+
+        response_json = response.json()
+        members_data = response_json["data"]
+        for member_data in members_data:
+            title = member_data["display_name"]
+            id = member_data["id"]
+            if title in members:
+                print(
+                    f"[WARNING] member in {campaign_id} with display_name {title} already exists. Skipping {id} in favor of {members[title]['id']} ",
+                    file=sys.stderr,
+                )
+                continue
+            members[title] = member_data
+
+        # Pagination: Run request until links.next is null.
+        next_url = response_json["links"]["next"]
+        page += 1
 
     # print(f"Found members for campaign {campaign_id}: {members}", file=sys.stderr)
     return members
