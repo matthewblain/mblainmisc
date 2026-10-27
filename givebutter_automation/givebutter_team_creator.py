@@ -271,25 +271,24 @@ def campaign_data_to_normal_form(campaigns):
 
     results = []
     for campaign in campaigns.values():
-        team_members = campaign.get("team_members")
-        if team_members:
-            for team_member in team_members.values():
-                row = {
-                    "campaign_title": campaign["title"],
-                    "campaign_id": campaign["id"],
-                    "team_member_display_name": team_member["display_name"],
-                    "team_member_id": team_member["id"],
-                }
-                results.append(row)
-        else:
-            # We'll just write the campaign itself w/o team info.
-            # This happens if no team member list was provided,
-            # and the campaign had no team members already.
+        # Write the campaign itself w/o team info.
+        # Useful both if there are no team members and for later matching
+        # where some teams have team members and others do not.
+        row = {
+            "campaign_title": campaign["title"],
+            "campaign_id": campaign["id"],
+            "team_member_display_name": "",
+            "team_member_id": "",
+        }
+        results.append(row)
+
+        team_members = campaign.get("team_members", {})
+        for team_member in team_members.values():
             row = {
                 "campaign_title": campaign["title"],
                 "campaign_id": campaign["id"],
-                "team_member_display_name": "",
-                "team_member_id": "",
+                "team_member_display_name": team_member["display_name"],
+                "team_member_id": team_member["id"],
             }
             results.append(row)
 
