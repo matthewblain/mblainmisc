@@ -130,7 +130,7 @@ def get_campaign_members(campaign_id, api_requests):
 
 
 def create_campaign(title, api_requests):
-    """Sends a PUT request to update a single contact by ID."""
+    """Sends a POST request to create a campaign."""
     url = "https://api.givebutter.com/v1/campaigns"
 
     payload = {
@@ -165,7 +165,7 @@ def create_campaign(title, api_requests):
 
 
 def create_team_member(campaign_id, display_name, internal_api_requests):
-    """Sends a PUT request to create a team member.
+    """Sends a POST request to create a team member.
 
     Uses internal API. May or many not be stable across time.
     """
@@ -271,12 +271,25 @@ def campaign_data_to_normal_form(campaigns):
 
     results = []
     for campaign in campaigns.values():
-        for team_member in campaign["team_members"].values():
+        team_members = campaign.get("team_members")
+        if team_members:
+            for team_member in team_members.values():
+                row = {
+                    "campaign_title": campaign["title"],
+                    "campaign_id": campaign["id"],
+                    "team_member_display_name": team_member["display_name"],
+                    "team_member_id": team_member["id"],
+                }
+                results.append(row)
+        else:
+            # We'll just write the campaign itself w/o team info.
+            # This happens if no team member list was provided,
+            # and the campaign had no team members already.
             row = {
                 "campaign_title": campaign["title"],
                 "campaign_id": campaign["id"],
-                "team_member_display_name": team_member["display_name"],
-                "team_member_id": team_member["id"],
+                "team_member_display_name": "",
+                "team_member_id": "",
             }
             results.append(row)
 
@@ -292,9 +305,8 @@ def main():
     )
     parser.add_argument(
         "-x",
-        "--request_har",
-        required=True,
-        help="Saved HAR of a sample internal API call.",
+        "--request-har",
+        help="Saved HAR of an internal API call seen in a browser",
     )
     parser.add_argument(
         "--campaign-list",
@@ -304,7 +316,6 @@ def main():
     )
     parser.add_argument(
         "--team-member-list",
-        required=True,
         dest="team_member_list",
         help="Path to the file containing a list of team_members to create for each campaign",
     )
@@ -321,14 +332,19 @@ def main():
     )
 
     args = parser.parse_args()
+    if args.team_member_list and not args.request_har:
+        parser.error("--request-har is required when --team-member-list is specified.")
 
     with open(args.campaign_list, mode="r", encoding="utf-8-sig") as file:
         campaign_titles = file.readlines()
         campaign_titles = [l.strip() for l in campaign_titles]
 
-    with open(args.team_member_list, mode="r", encoding="utf-8-sig") as file:
-        team_members = file.readlines()
-        team_members = [l.strip() for l in team_members]
+    if args.team_member_list:
+        with open(args.team_member_list, mode="r", encoding="utf-8-sig") as file:
+            team_members = file.readlines()
+            team_members = [l.strip() for l in team_members]
+    else:
+        team_members = []
 
     with open(args.request_har, "r", encoding="utf-8") as file:
         sample_internal_request = json.load(file)
@@ -347,7 +363,13 @@ def main():
 
     normalized_results = campaign_data_to_normal_form(results)
 
-    with open(args.output_csv, mode="w", encoding="utf-8-sig", newline="") as f:
+    with open(args.output_csv, mode="w", encoding="utf-8", newline="") as f:
+        field_names = [
+            "campaign_title",
+            "campaign_id",
+            "team_member_display_name",
+            "team_member_id",
+        ]
         writer = csv.DictWriter(f, fieldnames=normalized_results[0].keys())
         writer.writeheader()
         writer.writerows(normalized_results)
